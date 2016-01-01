@@ -1,0 +1,27 @@
+﻿<Window x:Class="ChatApplication.InputDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChatApplication"
+        mc:Ignorable="d" x:Name="dialog"
+        SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
+        ContentRendered="WindowContentRendered" ResizeMode="NoResize" Topmost="False"
+        WindowStyle="ThreeDBorderWindow">
+    <Grid Margin="15" x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label FontWeight="DemiBold" x:Name="Description" Grid.Row="0"/>
+        <TextBox x:Name="ResponseTextBox" Grid.Row="1" MinWidth="250"/>
+
+        <WrapPanel x:Name="responsePanel" Grid.Row="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button IsDefault="True" Name="btnDialogOk" Click="OKButtonClicked" MinWidth="60" Margin="0,0,10,0">_Ok</Button>
+            <Button IsCancel="True" MinWidth="60">_Cancel</Button>
+        </WrapPanel>
+    </Grid>
+
+</Window>

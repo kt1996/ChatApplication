@@ -1,0 +1,136 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChatApplication"
+        xmlns:Conv="clr-namespace:Converters" xmlns:commands="clr-namespace:CustomCommands"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Name="PrimaryWindow" x:Class="ChatApplication.MainWindow"
+        mc:Ignorable="d"
+        Title="ChatApp" Height="600" Width="700" MinWidth="550" MinHeight="450" ContentRendered="SortBroadcastingPeers">
+    <Window.Resources>
+        <Conv:SubtractAConstant x:Key="ConverterSubtract" />
+        <Conv:SubtractAConstantFromLeftMargin x:Key="ConverterSubtractFromLeftMargin" />
+        <Conv:SubtractAConstantFromRightMargin x:Key="ConverterSubtractFromRightMargin" />
+        <Conv:MultiplyAConstant x:Key="ConverterMultiplier" />
+        <Conv:MultiplyAndThenSubtractTwoConstants x:Key="ConverterMultiplyAndSubtract" />
+        <Conv:SubtractAndThenMultiplyTwoConstants x:Key="ConverterSubtractAndMultiply" />
+        <Conv:TabWidthConverter x:Key="ConverterTabWidth" />
+        <Conv:MessageboxWidthConverter x:Key="ConverterMessageBoxWidth" />
+        <Conv:JoinNickAndIP x:Key="ConverterJoinNickAndIP" />
+        <Conv:SubtractTwoMultiBindings x:Key="ConverterSubtractTwoMultibindings" />
+        <Conv:StatusBarText x:Key="ConverterStatusBarText" />
+        <Storyboard x:Key="ShowLog" >
+            <ThicknessAnimation Storyboard.TargetProperty="Margin" To="0,0,0,0" DecelerationRatio=".9" Duration="0:0:0.8"/>
+        </Storyboard>
+        <Storyboard x:Key="HideLog" >
+            <ThicknessAnimation Storyboard.TargetProperty="Margin" To="0,0,-210,0" DecelerationRatio=".9" Duration="0:0:0.8"/>
+        </Storyboard>
+        <Storyboard x:Key="ShowOverlayRectangleForLog" >
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0.1" Duration="0:0:0.5"/>
+        </Storyboard>
+        <Storyboard x:Key="HideOverlayRectangleForLog" >
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5" />
+        </Storyboard>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="commands:CustomCommands.Exit" Executed="ExitCommandExecuted"/>
+        <CommandBinding Command="commands:CustomCommands.ManuallyConnectDialog" Executed="ManuallyConnectCommandExecuted"/>
+    </Window.CommandBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <Rectangle Fill="Gray" Opacity="0" Panel.ZIndex="-1" Name="MainWindowOverlayRectangleForLog" HorizontalAlignment="Left" Height="{Binding ActualHeight, ConverterParameter=25, Converter={StaticResource ConverterSubtract}, ElementName=PrimaryWindow}" Stroke="Transparent" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=PrimaryWindow}" Grid.RowSpan="2" Mouse.MouseUp="HideLogbox"/>
+        <Rectangle Fill="Transparent" Opacity="0" Panel.ZIndex="-1" Name="MainWindowOverlayRectangleForSearch" HorizontalAlignment="Right" Height="{Binding ActualHeight, ConverterParameter=25, Converter={StaticResource ConverterSubtract}, ElementName=PrimaryWindow}" Stroke="Transparent" VerticalAlignment="Top" Grid.RowSpan="2" Mouse.MouseUp="LoseSearchAreaFocusRectMouseUp">
+            <Rectangle.Width>
+                <MultiBinding Converter="{StaticResource ConverterSubtractTwoMultibindings}" ConverterParameter="10">
+                    <Binding Path="ActualWidth" ElementName="PrimaryWindow"/>
+                    <Binding Path="ActualWidth" ElementName="SearchArea"/>
+                </MultiBinding>
+            </Rectangle.Width>
+        </Rectangle>
+
+        <Menu IsMainMenu="True" Panel.ZIndex="1" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Width= "{Binding ActualWidth, ElementName=PrimaryWindow}">
+            <MenuItem Header="File">
+                <MenuItem Header="Exit" Command="commands:CustomCommands.Exit" />
+            </MenuItem>
+            <MenuItem Header="Options">
+                <MenuItem Header="Connect Manually" Command="commands:CustomCommands.ManuallyConnectDialog"/>
+                <MenuItem x:Name="ToggleServer" Header="Server Running" Click="ToggleServerStatus" IsCheckable="True" IsChecked="True"/>
+                <MenuItem x:Name="ToggleBroadcast" Header="Server Broadcasting" Click="ToggleBroadcasting" IsCheckable="True" IsChecked="True"/>
+            </MenuItem>
+        </Menu>
+        <StatusBar Panel.ZIndex="51" Height="20" Grid.Row="2" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=PrimaryWindow}">
+            <StatusBarItem Margin="{Binding ElementName=PrimaryWindow, Path=ActualWidth, Converter={StaticResource ConverterSubtractFromLeftMargin}, ConverterParameter=260}">
+                <TextBlock FontSize="11.5" Text="{Binding ElementName=ToggleServer, Path=IsChecked, Converter={StaticResource ConverterStatusBarText}, ConverterParameter=0}"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock FontSize="11.5" Text="{Binding ElementName=ToggleBroadcast, Path=IsChecked, Converter={StaticResource ConverterStatusBarText},ConverterParameter= 1}"/>
+            </StatusBarItem>
+        </StatusBar>
+        <Grid Panel.ZIndex="3" x:Name="MainContentGrid" HorizontalAlignment="Left" Height="{Binding ActualHeight, ConverterParameter=25, Converter={StaticResource ConverterSubtract}, ElementName=PrimaryWindow}" Grid.Row="1" VerticalAlignment="Top" Width="{Binding ActualWidth, ElementName=PrimaryWindow}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*" MaxWidth="228.61272" MinWidth="140.63584"/>
+                <ColumnDefinition Width="250*"/>
+            </Grid.ColumnDefinitions>
+
+            <Canvas Grid.Column="0" Grid.Row="0" Name="SearchArea" FocusManager.GotFocus="SearchAreaGotFocus">
+                <ListView x:Name="BroadcastingList" Height="{Binding ActualHeight, ConverterParameter=103, Converter={StaticResource ConverterSubtract}, ElementName=MainContentGrid}" Canvas.Left="10" Canvas.Top="43" MaxWidth="210" Width="{Binding ActualWidth, ConverterParameter=0.2857143-20, Converter={StaticResource ConverterMultiplyAndSubtract}, ElementName=MainContentGrid}">
+                    <ListView.Resources>
+                        <ContextMenu x:Key="context_menu">
+                            <MenuItem Header="Connect" Click="ConnectFromBroadcastList">
+                                <MenuItem.Tag>
+                                    <MultiBinding Converter="{StaticResource ConverterJoinNickAndIP}">
+                                        <Binding Path="nick"/>
+                                        <Binding Path="IP"/>
+                                    </MultiBinding>
+                                </MenuItem.Tag>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.Resources>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="ContextMenu" Value="{StaticResource context_menu}">
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="{Binding ActualWidth, ConverterParameter=10, Converter={StaticResource ConverterSubtract}, ElementName=BroadcastingList}"  DisplayMemberBinding="{Binding nick}">
+                                <GridViewColumnHeader x:Name="SortHeader" Tag="Name" Click="SortBroadcastingPeers" >
+                                    <TextBlock HorizontalAlignment="Center"><Run Text="Nick                     "/></TextBlock>
+                                </GridViewColumnHeader>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <TextBox x:Name="SearchTextbox" Height="28" Canvas.Left="10" TextWrapping="Wrap" Text="Search.." Canvas.Top="5" Width="{Binding ActualWidth, ConverterParameter=0.2857143-20, Converter={StaticResource ConverterMultiplyAndSubtract}, ElementName=MainContentGrid}" MaxWidth="210" KeyUp="SearchTextboxKeyUp"/>
+            </Canvas>
+            <Canvas Grid.Column="1" Grid.Row="0">
+                <TabControl SelectionChanged="TabSelectionChanged" x:Name="TabControl" Height="{Binding ActualHeight, ConverterParameter=65, Converter={StaticResource ConverterSubtract}, ElementName=MainContentGrid}" Width="{Binding ActualWidth, ConverterParameter=0.7142857-228.61272, Converter={StaticResource ConverterTabWidth}, ElementName=MainContentGrid}" Canvas.Top="5"/>
+            </Canvas>
+        </Grid>
+        <Canvas Panel.ZIndex="51" x:Name="LogCanvas" Background="CornflowerBlue" HorizontalAlignment="Right" Height="{Binding ActualHeight, ConverterParameter=35, Converter={StaticResource ConverterSubtract}, ElementName=MainContentGrid}" Margin="0,0,-210,0" VerticalAlignment="Top" Width="210" Grid.RowSpan="2" Opacity="0.9">
+            <Menu Height="25">
+                <MenuItem Width="31" Height="25" HorizontalAlignment="Right" Margin="-210,0,0,0" Click="ToggleLogVisibilityButtonClicked" >
+                    <MenuItem.Effect>
+                        <DropShadowEffect BlurRadius="2" ShadowDepth="2"/>
+                    </MenuItem.Effect>
+                    <MenuItem.Icon>
+                        <Image Width="20" Height="20" Source="Resources/menu.png" Margin="3,0,0,2"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </Menu>
+            <ListBox x:Name="Log" Background="White" Height="{Binding ActualHeight, ConverterParameter=25, Converter={StaticResource ConverterSubtract}, ElementName=LogCanvas}" Canvas.Top="25" Width="210"/>
+        </Canvas>
+    </Grid>
+</Window>
