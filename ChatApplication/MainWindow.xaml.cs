@@ -324,14 +324,32 @@ namespace ChatApplication
             _thread.Start();
         }
 
+        private void EditPasswordClicked(object sender, RoutedEventArgs e)
+        {
+            EditPasswordWindow _passwordWindow = new EditPasswordWindow(password != null);
+            _passwordWindow.ShowInTaskbar = false;
+            _passwordWindow.Owner = this;
+            if ((bool)_passwordWindow.ShowDialog()) {
+                if (password != _passwordWindow.Password) {
+                    password = _passwordWindow.Password;
+                    if (password == null) {
+                        WriteToLogbox("Password Removed");
+                    }
+                    else {
+                        WriteToLogbox("Password Successfully changed");
+                    }
+                }
+            }
+        }
+
         private void HideLogbox(object sender, MouseButtonEventArgs e)
         {
             if (isLogWindowOpen)
             {
-                System.Windows.Media.Animation.Storyboard sb = Resources["HideOverlayRectangleForLog"] as System.Windows.Media.Animation.Storyboard;
-                sb.Begin(MainWindowOverlayRectangleForLog);
-                sb = Resources["HideLog"] as System.Windows.Media.Animation.Storyboard;
-                sb.Begin(LogCanvas);
+                System.Windows.Media.Animation.Storyboard _sb = Resources["HideOverlayRectangleForLog"] as System.Windows.Media.Animation.Storyboard;
+                _sb.Begin(MainWindowOverlayRectangleForLog);
+                _sb = Resources["HideLog"] as System.Windows.Media.Animation.Storyboard;
+                _sb.Begin(LogCanvas);
                 Panel.SetZIndex(MainWindowOverlayRectangleForLog, -1);
 
                 isLogWindowOpen = false;
