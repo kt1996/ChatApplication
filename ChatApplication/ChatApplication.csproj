@@ -58,7 +58,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="InputDialogWindow.xaml">
+    <Page Include="InputNickWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -73,8 +73,8 @@
     <Compile Include="EditPasswordWindow.xaml.cs">
       <DependentUpon>EditPasswordWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="InputDialogWindow.xaml.cs">
-      <DependentUpon>InputDialogWindow.xaml</DependentUpon>
+    <Compile Include="InputNickWindow.xaml.cs">
+      <DependentUpon>InputNickWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

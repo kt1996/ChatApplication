@@ -63,7 +63,7 @@
             </MenuItem>
             <MenuItem Header="Options">
                 <MenuItem Header="Connect Manually" Command="commands:CustomCommands.ManuallyConnectDialog"/>
-                <MenuItem Header="Edit Password" Click="EditPasswordClicked"/>
+                <MenuItem Header="Change Password" Click="EditPasswordClicked"/>
                 <MenuItem x:Name="ToggleServer" Header="Server Running" Click="ToggleServerStatus" IsCheckable="True" IsChecked="True"/>
                 <MenuItem x:Name="ToggleBroadcast" Header="Server Broadcasting" Click="ToggleBroadcasting" IsCheckable="True" IsChecked="True"/>
             </MenuItem>

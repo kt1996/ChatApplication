@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ChatApplication
 {
@@ -78,9 +68,11 @@ namespace ChatApplication
             }
             else
             {
+                IPTextBox.Text = "Enter IP Address";
                 IPTextBox.SelectAll();
                 IPTextBox.Focus();
-            }            
+            }
+            IPTextBox.Style = Resources["noError"] as Style;
         }
 
         public string IP
@@ -92,7 +84,7 @@ namespace ChatApplication
         public string password
         {
             get {
-                if (passwordBox != null)
+                if (passwordBox != null && passwordBox.Password != "")
                 {
                     return passwordBox.Password;
                 }
@@ -103,7 +95,6 @@ namespace ChatApplication
             }
             set { if (passwordBox != null) { passwordBox.Password = value; } }
         }
-
 
         private void CheckBoxClicked(object sender, RoutedEventArgs e)
         {
@@ -126,9 +117,43 @@ namespace ChatApplication
             }
         }
 
-        private void OKButtonClicked(object sender, System.Windows.RoutedEventArgs e)
+        private void OKButtonClicked(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
+            IPTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            System.Net.IPAddress _ip;
+            if (!System.Net.IPAddress.TryParse(IPTextBox.Text, out _ip)) {
+                IPTextBox.Style = Resources["blinkingError"] as Style;
+            }
+            else { 
+                DialogResult = true;
+            }
+        }
+
+        private void IPTextChanged(object sender, TextChangedEventArgs e)
+        {
+            IPTextBox.Style = Resources["noError"] as Style;
+        }
+    }
+
+    public class IPValidation : System.ComponentModel.IDataErrorInfo
+    {
+        public string IP { get; set; }
+
+        public string Error
+        {
+            get { return null; }
+        }
+
+        public string this[string columnName]
+        {
+            get {
+                string _result = string.Empty;
+                System.Net.IPAddress _ip;
+                if (!System.Net.IPAddress.TryParse(IP, out _ip)) {
+                    _result = "Invalid IP Address";
+                }
+                return _result;
+            }
         }
     }
 }

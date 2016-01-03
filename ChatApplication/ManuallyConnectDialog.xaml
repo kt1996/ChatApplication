@@ -7,6 +7,72 @@
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
         Title="Manually Connect"  ResizeMode="NoResize">
+    <Window.Resources>
+        <Storyboard x:Key="BlinkError">
+            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" 
+                                       Storyboard.TargetProperty="(UIElement.Visibility)">
+                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Hidden}"/>
+                <DiscreteObjectKeyFrame KeyTime="00:00:00.1500000" Value="{x:Static Visibility.Visible}"/>
+                <DiscreteObjectKeyFrame KeyTime="00:00:00.3000000" Value="{x:Static Visibility.Hidden}"/>
+                <DiscreteObjectKeyFrame KeyTime="00:00:00.4500000" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Style TargetType="{x:Type TextBox}" x:Key="blinkingError">
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Right" Width="16" Height="16" VerticalAlignment="Center" Margin="-25 0 0 0">
+                                <Ellipse Width="16" Height="16" Fill="Red">
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard Storyboard="{StaticResource BlinkError}"/>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <Ellipse Width="3.5" Height="8.5" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0 1.5 0 0" Fill="White">
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard Storyboard="{StaticResource BlinkError}"/>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <Ellipse Width="2.5" Height="2.5" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0 0 0 1.5" Fill="White">
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard Storyboard="{StaticResource BlinkError}"/>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </Grid>
+                            <Border BorderBrush="Red" BorderThickness="1" CornerRadius="2">
+                                <AdornedElementPlaceholder/>
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="{x:Type TextBox}" x:Key="noError">
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel>
+                            <Border BorderBrush="Gray" BorderThickness="0">
+                                <AdornedElementPlaceholder/>
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <local:IPValidation x:Key="IPInstance"/>
+    </Window.Resources>
     <Grid Margin="15" x:Name="mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -20,7 +86,7 @@
                 <ColumnDefinition Width="160"/>
                 <ColumnDefinition Width="95"/>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="IPTextBox" Text="Enter IP Address" Grid.Column="0" Grid.ColumnSpan="2" MinWidth="160"/>
+            <TextBox x:Name="IPTextBox" TextChanged="IPTextChanged" Text="{Binding Path=IP, Source={StaticResource IPInstance}, UpdateSourceTrigger=Explicit, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnNotifyDataErrors=True, Mode=TwoWay}" Grid.Column="0" Grid.ColumnSpan="2" MinWidth="160"/>
         </Grid>        
         <Grid Grid.Row="1" x:Name="passwordGrid">
             <Grid.ColumnDefinitions>

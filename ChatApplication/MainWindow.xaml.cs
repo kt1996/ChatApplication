@@ -457,16 +457,11 @@ namespace ChatApplication
             //Incase it is being called by window for first time initialization then get the nick too
             if (sender.GetType() == PrimaryWindow.GetType())
             {
-                // Get Nick From user
-                while (nick == "" || nick == "Enter Nick" || (nick.IndexOf(':') != -1) || (nick.IndexOf('<') != -1) || (nick.IndexOf('>') != -1) || nick.Length > 50)
-                {
-                    InputDialogWindow _dialog = new InputDialogWindow("Enter Nick", "Enter a Nickname:\n(Should not contain the \':\', \'<\' or \'>\' Characters)", "Enter Nick", 0, 50);
-                    _dialog.ShowInTaskbar = false;
-                    _dialog.Owner = this;
-                    if (_dialog.ShowDialog() == true)
-                    {
-                        nick = _dialog.ResponseText.Trim();
-                    }
+                InputNickWindow _dialog = new InputNickWindow();
+                _dialog.ShowInTaskbar = false;
+                _dialog.Owner = this;
+                if (_dialog.ShowDialog() == true) {
+                    nick = _dialog.ResponseText.Trim();
                 }
 
                 WriteToLogbox("Starting Status Broadcasts");
@@ -1325,6 +1320,9 @@ namespace ChatApplication
                             break;
 
                         default:
+                            _message = "Invalid MessageCode Received, The other client is most probably running a newer version of the application with a new Feature.. !!";
+                            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, _message, _nick, 0); }));
+                            WriteToLogbox("Invalid MessageCode- " + _nick + " (" + _clientSocketRemoteEndPointString + ") : " + _messageType);
                             _continue = false;
                             break;
                     }
