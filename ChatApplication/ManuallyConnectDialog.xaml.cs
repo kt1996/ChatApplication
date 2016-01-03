@@ -134,6 +134,7 @@ namespace ChatApplication
             IPTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             System.Net.IPAddress _ip;
             if (!System.Net.IPAddress.TryParse(IPTextBox.Text, out _ip)) {
+                IPTextBox.Style = Resources["noError"] as Style;
                 IPTextBox.Style = Resources["blinkingError"] as Style;
             }
             else { 
