@@ -30,10 +30,10 @@
             Enter a Nickname:
         </Label>
 
-        <TextBox x:Name="ResponseTextBox" Grid.Row="1" MinWidth="250" MaxLength="50" KeyUp="ResponseTextBoxKeyUp"/>
+        <TextBox x:Name="ResponseTextBox" Grid.Row="1" MinWidth="250" MaxLength="30" KeyUp="ResponseTextBoxKeyUp"/>
 
         <StackPanel Grid.Row="2" Margin="0,7">
-            <Label Name="BlankErrorLabel" Foreground="Red">
+            <Label Name="BlankErrorLabel" Foreground="Red" Margin="0,0,0,-3">
                 <BulletDecorator>
                     <BulletDecorator.Bullet>
                         <Ellipse Height="4" Width="4" Fill="Red"/>
@@ -41,12 +41,20 @@
                     <TextBlock Name="BlankErrorLabelText" FontWeight="Medium" Margin="3,0,0,-5">NickName cannot be blank</TextBlock>
                 </BulletDecorator>
             </Label>
-            <Label Name="InvalidCharacterErrorLabel" Foreground="Red">
+            <Label Name="InvalidCharacterErrorLabel" Foreground="Red" Margin="0,0,0,-3">
                 <BulletDecorator>
                     <BulletDecorator.Bullet>
                         <Ellipse Height="4" Width="4" Fill="Red"/>
                     </BulletDecorator.Bullet>
                     <TextBlock Name="InvalidCharacterErrorLabelText" FontWeight="Medium"  Margin="3,0,0,0">NickName cannot contain ':', '&lt;' or '&gt;'</TextBlock>
+                </BulletDecorator>
+            </Label>
+            <Label Name="MaxLengthLabel" Foreground="Red" Margin="0,-5,0,0">
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <Ellipse Height="4" Width="4" Fill="Red"/>
+                    </BulletDecorator.Bullet>
+                    <TextBlock FontWeight="Medium"  Margin="3,0,0,0">Maximum Nick length is 30 characters</TextBlock>
                 </BulletDecorator>
             </Label>
         </StackPanel>

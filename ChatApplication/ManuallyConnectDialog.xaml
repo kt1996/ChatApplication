@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:ChatApplication"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
-        Title="Manually Connect"  ResizeMode="NoResize">
+        Title="Manually Connect"  ResizeMode="NoResize" MaxWidth="340">
     <Window.Resources>
         <Storyboard x:Key="BlinkError">
             <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" 
@@ -86,7 +87,7 @@
                 <ColumnDefinition Width="160"/>
                 <ColumnDefinition Width="95"/>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="IPTextBox" TextChanged="IPTextChanged" Text="{Binding Path=IP, Source={StaticResource IPInstance}, UpdateSourceTrigger=Explicit, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnNotifyDataErrors=True, Mode=TwoWay}" Grid.Column="0" Grid.ColumnSpan="2" MinWidth="160"/>
+            <TextBox x:Name="IPTextBox" TextChanged="IPTextChanged" MaxLength="15" Text="{Binding Path=IP, Source={StaticResource IPInstance}, UpdateSourceTrigger=Explicit, NotifyOnValidationError=True, ValidatesOnDataErrors=True, ValidatesOnNotifyDataErrors=True, Mode=TwoWay}" Grid.Column="0" Grid.ColumnSpan="2" MinWidth="160"/>
         </Grid>        
         <Grid Grid.Row="1" x:Name="passwordGrid">
             <Grid.ColumnDefinitions>

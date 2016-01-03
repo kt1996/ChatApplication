@@ -59,6 +59,7 @@ namespace ChatApplication
             else {
                 InvalidCharacterErrorLabel.Visibility = Visibility.Collapsed;
             }
+            MaxLengthLabel.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -36,6 +36,10 @@ namespace ChatApplication
                 passwordBox = new PasswordBox();
                 passwordBox.Name = "passwordBox";
                 passwordBox.Margin = new Thickness(3, 4, 0, -7);
+                passwordBox.MaxLength = 40;
+                passwordBox.MaxWidth = 180;
+                passwordBox.KeyDown += new System.Windows.Input.KeyEventHandler(IPTextBoxKeyDown);
+                passwordBox.ToolTipOpening += new ToolTipEventHandler(PasswordBoxToolTipOpening);
                 passwordGrid.Children.Add(passwordBox);
                 Grid.SetColumn(passwordBox, 1);
                 passwordBox.SelectAll();
@@ -61,7 +65,11 @@ namespace ChatApplication
                 passwordBox = new PasswordBox();
                 passwordBox.Name = "passwordBox";
                 passwordBox.Margin = new Thickness(3, 4, 0, -7);
+                passwordBox.MaxWidth = 180;
+                passwordBox.KeyDown += new System.Windows.Input.KeyEventHandler(IPTextBoxKeyDown);
+                passwordBox.ToolTipOpening += new ToolTipEventHandler(PasswordBoxToolTipOpening);
                 passwordGrid.Children.Add(passwordBox);
+                passwordBox.MaxLength = 40;
                 Grid.SetColumn(passwordBox, 1);
                 passwordBox.SelectAll();
                 passwordBox.Focus();
@@ -103,6 +111,10 @@ namespace ChatApplication
                 passwordBox = new PasswordBox();
                 passwordBox.Name = "passwordBox";
                 passwordBox.Margin = new Thickness(3, 4, 0, -7);
+                passwordBox.KeyDown += new System.Windows.Input.KeyEventHandler(IPTextBoxKeyDown);
+                passwordBox.ToolTipOpening += new ToolTipEventHandler(PasswordBoxToolTipOpening);
+                passwordBox.MaxLength = 40;
+                passwordBox.MaxWidth = 180;
                 passwordGrid.Children.Add(passwordBox);
                 Grid.SetColumn(passwordBox, 1);
                 passwordBox.SelectAll();
@@ -132,6 +144,43 @@ namespace ChatApplication
         private void IPTextChanged(object sender, TextChangedEventArgs e)
         {
             IPTextBox.Style = Resources["noError"] as Style;
+        }
+
+        private void IPTextBoxKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            PasswordBox _passwordBox = sender as PasswordBox;
+            if(_passwordBox.Password.Length == _passwordBox.MaxLength) {
+                if (_passwordBox.ToolTip == null) {
+                    ToolTip _tooltip = new ToolTip { Content = "Password has max length of " + _passwordBox.MaxLength + " characters" };
+                    _tooltip.PlacementTarget = _passwordBox;
+                    _tooltip.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+                    _tooltip.HorizontalOffset = 5;
+                    _tooltip.VerticalOffset = 5;
+                    _passwordBox.ToolTip = _tooltip;
+                    _tooltip.IsOpen = true;
+                    _tooltip.StaysOpen = false;
+                }
+                else {
+                    ToolTip _tooltip = (ToolTip)_passwordBox.ToolTip;
+                    _tooltip.StaysOpen = true;
+                    _tooltip.Visibility = Visibility.Collapsed;
+                    _tooltip = new ToolTip { Content = "Password has max length of " + _passwordBox.MaxLength + " characters" };
+                    _tooltip.PlacementTarget = _passwordBox;
+                    _tooltip.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+                    _tooltip.HorizontalOffset = 5;
+                    _tooltip.VerticalOffset = 5;
+                    _passwordBox.ToolTip = _tooltip;
+                    _tooltip.IsOpen = true;
+                    _tooltip.StaysOpen = false;
+                }               
+            }
+        }
+
+        private void PasswordBoxToolTipOpening(object sender, ToolTipEventArgs e)
+        {
+            ToolTip _tooltip = (ToolTip)passwordBox.ToolTip;
+            _tooltip.StaysOpen = true;
+            _tooltip.Visibility = Visibility.Collapsed;
         }
     }
 

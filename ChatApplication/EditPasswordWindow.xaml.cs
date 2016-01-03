@@ -66,15 +66,15 @@ namespace ChatApplication
 
                     ToolTip _tooltip;
                     if (PasswordTextBox.Password == "") {
-                        _tooltip = new ToolTip { Content = "Password cannot be blank" };
+                        _tooltip = new ToolTip { Content = "Password Cannot Be Blank" };
                         _tooltip.PlacementTarget = PasswordTextBox;
                     }
                     else if (ConfirmPasswordTextBox.Password == "") {
-                        _tooltip = new ToolTip { Content = "Password cannot be blank" };
+                        _tooltip = new ToolTip { Content = "Password Cannot Be Blank" };
                         _tooltip.PlacementTarget = ConfirmPasswordTextBox;
                     }
                     else {
-                        _tooltip = new ToolTip { Content = "Passwords do not match" };
+                        _tooltip = new ToolTip { Content = "Passwords Do Not Match" };
                         _tooltip.PlacementTarget = ConfirmPasswordTextBox;
                     }
 
@@ -96,6 +96,19 @@ namespace ChatApplication
         {
             PasswordTextBox.Style = Resources["errorTemplate"] as Style;
             ConfirmPasswordTextBox.Style = Resources["errorTemplate"] as Style;
+        }
+
+        private void PasswordTextBoxKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (PasswordTextBox.Password.Length == PasswordTextBox.MaxLength || ConfirmPasswordTextBox.Password.Length == ConfirmPasswordTextBox.MaxLength) {
+                MaxCharLabel.Foreground = System.Windows.Media.Brushes.Red;
+            }
+            else {
+                MaxCharLabel.Foreground = System.Windows.Media.Brushes.Green;
+            }
+            if ((sender as PasswordBox).Password.Length == (sender as PasswordBox).MaxLength) {
+                (Resources["Blink"] as System.Windows.Media.Animation.Storyboard).Begin(MaxCharLabel);
+            }
         }
     }
 
@@ -141,14 +154,14 @@ namespace ChatApplication
                 string _result = string.Empty;
                 if (columnName == "FirstPassword") {     
                     if (firstPassword == string.Empty) {
-                        _result = "Password cannot be blank";
+                        _result = "Password Cannot Be Blank";
                     }               
                     else if (firstPassword != secondPassword)
-                        _result = "Passwords do not match";
+                        _result = "Passwords Do Not Match";
                 }
                 else if (columnName == "SecondPassword") {
                     if (secondPassword == string.Empty) {
-                        _result = "Password cannot be blank";
+                        _result = "Password Cannot Be Blank";
                     }
                     else if (firstPassword != secondPassword)
                         _result = "Passwords Do Not Match";
@@ -265,6 +278,5 @@ namespace ChatApplication
             dp.SetValue(UpdatingPassword, value);
         }
     }
-
 
 }

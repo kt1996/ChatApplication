@@ -457,12 +457,14 @@ namespace ChatApplication
             //Incase it is being called by window for first time initialization then get the nick too
             if (sender.GetType() == PrimaryWindow.GetType())
             {
-                InputNickWindow _dialog = new InputNickWindow();
-                _dialog.ShowInTaskbar = false;
-                _dialog.Owner = this;
-                if (_dialog.ShowDialog() == true) {
-                    nick = _dialog.ResponseText.Trim();
-                }
+                while (nick == "" || nick == "Enter Nick" || (nick.IndexOf(':') != -1) || (nick.IndexOf('<') != -1) || (nick.IndexOf('>') != -1) || nick.Length > 30) {
+                    InputNickWindow _dialog = new InputNickWindow();
+                    _dialog.ShowInTaskbar = false;
+                    _dialog.Owner = this;
+                    if (_dialog.ShowDialog() == true) {
+                        nick = _dialog.ResponseText.Trim();
+                    }
+                }                    
 
                 WriteToLogbox("Starting Status Broadcasts");
                 broadcastTimer = new Timer(Broadcast, null, 0, Timeout.Infinite);
