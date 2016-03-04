@@ -100,8 +100,7 @@ namespace ChatApplication
                         return;
                         //Error while greeting
                     }
-
-
+                    
 
                     Thread thread = new Thread(() => AcceptGreetAndProcess(true, client_socket));
                     string _clientSocketRemoteEndPointString = client_socket.RemoteEndPoint.ToString();
@@ -264,6 +263,12 @@ namespace ChatApplication
 
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { AddNewTab(obj.nick, _socketRemoteEndPointString.Remove(_socketRemoteEndPointString.LastIndexOf(':'))); }));
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_socketRemoteEndPointString.Remove(_socketRemoteEndPointString.LastIndexOf(':')), "Connected", obj.nick, 0); }));
+
+            obj.key = Encryption.PerformAssymetricKeyExchangeUsingECDiffieHellmanOnSocket(socket);
+            if(obj.key == null) {
+                Network.NetworkCommunicationManagers.Disconnect(socket);
+                return;
+            }
 
             ProcessClient(obj);
         }

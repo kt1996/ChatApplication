@@ -3,11 +3,11 @@ using System.Security.Cryptography;
 using System.Text;
 using ChatApplication.Network;
 
-namespace ChatApplication.Encryption
+namespace ChatApplication
 {
-    class Encryption
+    public static class Encryption
     {
-        byte[] EncodeStringUsingAes(byte[] key, string secretMessage, out byte[] iv)
+        static internal byte[] EncodeStringUsingAes(byte[] key, string secretMessage, out byte[] iv)
         {
             using (Aes aes = new AesCryptoServiceProvider()) {
                 aes.Key = key;
@@ -26,7 +26,7 @@ namespace ChatApplication.Encryption
 
         }
 
-        byte[] EncodeByteArrayUsingAes(byte[] key, byte[] plaintextMessage, out byte[] iv)
+        static internal byte[] EncodeByteArrayUsingAes(byte[] key, byte[] plaintextMessage, out byte[] iv)
         {
             using (Aes aes = new AesCryptoServiceProvider()) {
                 aes.Key = key;
@@ -44,7 +44,7 @@ namespace ChatApplication.Encryption
 
         }
 
-        string DecodeToStringUsingAes(byte[] key, byte[] encryptedMessage, byte[] iv)
+        static internal string DecodeToStringUsingAes(byte[] key, byte[] encryptedMessage, byte[] iv)
         {
             using (Aes aes = new AesCryptoServiceProvider()) {
                 aes.Key = key;
@@ -60,7 +60,7 @@ namespace ChatApplication.Encryption
             }
         }
 
-        byte[] DecodeToByteArrayUsingAes(byte[] key, byte[] encryptedMessage, byte[] iv)
+        static internal byte[] DecodeToByteArrayUsingAes(byte[] key, byte[] encryptedMessage, byte[] iv)
         {
             using (Aes aes = new AesCryptoServiceProvider()) {
                 aes.Key = key;
@@ -76,7 +76,7 @@ namespace ChatApplication.Encryption
             }
         }
 
-        byte[] PerformAssymetricKeyExchangeUsingECDiffieHellmanOnSocket(System.Net.Sockets.Socket socket)
+        static internal byte[] PerformAssymetricKeyExchangeUsingECDiffieHellmanOnSocket(System.Net.Sockets.Socket socket)
         {
             using (ECDiffieHellmanCng ECDiffieHellmanCngobj = new ECDiffieHellmanCng()) {
 
@@ -85,8 +85,12 @@ namespace ChatApplication.Encryption
                 byte[] _myPublicKey = ECDiffieHellmanCngobj.PublicKey.ToByteArray();
                 byte[] _otherPublicKey = new byte[140];
 
-                NetworkCommunicationManagers.SendByteArrayOverSocket(socket, _myPublicKey);
-                NetworkCommunicationManagers.ReceiveByteArrayOverSocket(socket, out _otherPublicKey, 140);
+                if (NetworkCommunicationManagers.SendByteArrayOverSocket(socket, _myPublicKey) == false) {
+                    return null;
+                };
+                if (NetworkCommunicationManagers.ReceiveByteArrayOverSocket(socket, out _otherPublicKey, 140) == false) {
+                    return null;
+                };
                 
                 return ECDiffieHellmanCngobj.DeriveKeyMaterial(CngKey.Import(_otherPublicKey, CngKeyBlobFormat.EccPublicBlob));
             }

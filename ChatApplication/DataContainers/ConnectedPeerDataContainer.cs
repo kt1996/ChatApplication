@@ -9,5 +9,6 @@
         public System.Net.Sockets.Socket socket;
         public string nick;
         public string encodedMachineName;
+        public byte[] key;
     }
 }
