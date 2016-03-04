@@ -67,6 +67,7 @@ namespace ChatApplication.Network
             int _sentSoFar, _size;
 
             _temp = Encryption.EncodeStringUsingAes(key, msg, out _iv);
+            int _si = msg.Length;
             _buffer = new byte[_temp.Length + _iv.Length];
             System.Buffer.BlockCopy(_temp, 0, _buffer, 0, _temp.Length);
             System.Buffer.BlockCopy(_iv, 0, _buffer, _temp.Length, _iv.Length);

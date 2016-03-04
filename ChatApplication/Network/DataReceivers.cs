@@ -18,13 +18,12 @@ namespace ChatApplication.Network
                         return false;
                     }
                 }
-
                 msg = System.Net.IPAddress.NetworkToHostOrder(System.BitConverter.ToInt32(_buffer, 0));
                 return true;
             }
             catch (System.Exception) {
                 return false;
-            }            
+            }    
         }
 
         static internal bool ReceiveStringOverSocket(Socket socket, out string msg, int length)
@@ -75,8 +74,8 @@ namespace ChatApplication.Network
         {
             msg = 0;
             try {
-                int _readSoFar = 0, _size = 4;
-                byte[] _buffer = new byte[4];
+                int _readSoFar = 0, _size = 32;
+                byte[] _buffer = new byte[32];
                 while (_readSoFar < _size) {
                     int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
                     _readSoFar += _read;
@@ -105,7 +104,7 @@ namespace ChatApplication.Network
         {
             msg = string.Empty;
             try {
-                int _readSoFar = 0, _size = length;
+                int _readSoFar = 0, _size = (((int)(length/16))+2)*16;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
                     int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
@@ -135,7 +134,7 @@ namespace ChatApplication.Network
         {
             msg = null;
             try {
-                int _readSoFar = 0, _size = length;
+                int _readSoFar = 0, _size = (((int)(length / 16)) + 2) * 16;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
                     int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
