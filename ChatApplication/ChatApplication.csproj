@@ -108,6 +108,7 @@
     <Compile Include="Dialogs\InputNickWindow.xaml.cs">
       <DependentUpon>InputNickWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Encryption\Encryption.cs" />
     <Compile Include="Graphics\Adorners\SortAdorner.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

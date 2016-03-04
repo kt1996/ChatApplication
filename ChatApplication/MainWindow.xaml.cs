@@ -48,8 +48,8 @@ namespace ChatApplication
             InitializeComponent();
 
             //Get and encode Machine Name
-            byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(Environment.MachineName));
-            encodedMachineName = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+            byte[] _hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(Environment.MachineName));
+            encodedMachineName = BitConverter.ToString(_hash).Replace("-", string.Empty).ToLower();
 
             //Start the server for receiving requests
             StartServer();
