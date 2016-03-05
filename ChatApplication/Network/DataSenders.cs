@@ -13,7 +13,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = _buffer.Length;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                    _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }                
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken
@@ -33,7 +45,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = 4;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                     _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken
@@ -50,7 +74,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = msg.Length;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(msg, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                    _sent = socket.Send(msg, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken
@@ -73,7 +109,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = _buffer.Length;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                    _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken
@@ -95,7 +143,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = _buffer.Length;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                    _sent = socket.Send(_buffer, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken
@@ -117,7 +177,19 @@ namespace ChatApplication.Network
             _sentSoFar = 0;
             _size = msg.Length;
             while (_sentSoFar < _size) {
-                int _sent = socket.Send(msg, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                int _sent;
+                try {
+                    _sent = socket.Send(msg, _sentSoFar, _size - _sentSoFar, SocketFlags.None);
+                }
+                catch (SocketException ex) {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                        System.Threading.Thread.Sleep(30);
+                        continue;
+                    }
+                    else {
+                        throw ex;
+                    }
+                }
                 _sentSoFar += _sent;
                 if (_sent == 0) {
                     // connection was broken

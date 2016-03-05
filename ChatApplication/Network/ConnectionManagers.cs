@@ -38,6 +38,38 @@ namespace ChatApplication.Network
             return false;
         }
 
+        static internal bool ConnectToEndPoint(string address, int bufferSize, out Socket socket, out SocketException exception)
+        {
+            socket = null;
+            exception = null;
+            short _numberOfTries = 1;
+            bool _isConnected = false;
+            SocketException _exception = null;
+            while (_numberOfTries <= 3) {
+                for (int portOffset = 0; portOffset < TCPPorts.Length; portOffset++) {
+                    Socket _peerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    System.Threading.Thread thread = new System.Threading.Thread(() => ConnectToParticularEndpoint(ref _isConnected, ref _exception, ref _peerSocket, portOffset, address));
+                    thread.Name = "Attempt connection to " + address;
+                    thread.IsBackground = true;
+                    thread.Start();
+                    thread.Join(1000);
+
+                    //connected
+                    if (_isConnected) {
+                        socket = _peerSocket;
+                        return true;
+                    }
+
+                    //Some other exception occurs
+                    if (_exception != null && _exception.ErrorCode != 10061 && _exception.ErrorCode != 10065 && _exception.ErrorCode != 10060 && _exception.ErrorCode != 10064) {
+                        exception = _exception;
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+
         static internal void ConnectToParticularEndpoint(ref bool connected, ref SocketException ex, ref Socket _peerSocket, int portOffset, string address)
         {
             System.Net.IPEndPoint client_endpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(address), TCPPorts[portOffset]);

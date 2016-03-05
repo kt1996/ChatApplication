@@ -11,7 +11,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = 4;
                 byte[] _buffer = new byte[4];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    }
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
@@ -33,7 +45,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = length;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    } 
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
@@ -55,7 +79,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = length;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    } 
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
@@ -77,7 +113,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = 32;
                 byte[] _buffer = new byte[32];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    }
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
@@ -107,7 +155,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = (((int)(length/16))+2)*16;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    }
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
@@ -137,7 +197,19 @@ namespace ChatApplication.Network
                 int _readSoFar = 0, _size = (((int)(length / 16)) + 2) * 16;
                 byte[] _buffer = new byte[_size];
                 while (_readSoFar < _size) {
-                    int _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    }
                     _readSoFar += _read;
                     if (_read == 0) {
                         // connection was broken
