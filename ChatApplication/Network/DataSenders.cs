@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using ChatApplication;
 
 namespace ChatApplication.Network
 {

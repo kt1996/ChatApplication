@@ -235,12 +235,15 @@ namespace ChatApplication
             obj.nick = _message.Substring(0, _indexOfDelimiter);
             string _remainingMessage = _message.Substring(_indexOfDelimiter + 1);
 
+            int _temp;
+
             if (serverOrClient) {
                 if (password != null) {
                     _indexOfDelimiter = _remainingMessage.IndexOf(':');
 
                     if (_indexOfDelimiter == -1) {
                         Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 2);
+                        Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
                         Network.NetworkCommunicationManagers.Disconnect(socket);
                         return;
                     }
@@ -251,6 +254,7 @@ namespace ChatApplication
 
                     if (_providedPassword != password) {
                         Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 3);
+                        Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
                         Network.NetworkCommunicationManagers.Disconnect(socket);
                         return;
                     }
@@ -263,9 +267,26 @@ namespace ChatApplication
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { AddNewTab(obj.nick, _socketRemoteEndPointString.Remove(_socketRemoteEndPointString.LastIndexOf(':'))); }));
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_socketRemoteEndPointString.Remove(_socketRemoteEndPointString.LastIndexOf(':')), "Connected", obj.nick, 0); }));
 
-            Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 0);
-            int _temp;
-            Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
+            if (serverOrClient) {
+                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 0)) {
+                    Network.NetworkCommunicationManagers.Disconnect(socket);
+                    return;
+                };
+                if (!Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp)) {
+                    Network.NetworkCommunicationManagers.Disconnect(socket);
+                    return;
+                };
+            }
+            else {
+                if (!Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp)) {
+                    Network.NetworkCommunicationManagers.Disconnect(socket);
+                    return;
+                };
+                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 0)) {
+                    Network.NetworkCommunicationManagers.Disconnect(socket);
+                    return;
+                };                
+            }
 
             _clientSocketRemoteEndPointString = socket.RemoteEndPoint.ToString();
             string _ip = _clientSocketRemoteEndPointString.Remove(_clientSocketRemoteEndPointString.LastIndexOf(':'));
