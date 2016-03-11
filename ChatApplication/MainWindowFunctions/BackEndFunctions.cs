@@ -307,23 +307,31 @@ namespace ChatApplication
                         }
                         catch (Exception) { }
                         Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                            ManuallyConnectDialog _dialog = new ManuallyConnectDialog(_ip, _nick, "Password Required");
-                            _dialog.ShowInTaskbar = false;
-                            _dialog.Owner = this;
-                            if (_dialog.ShowDialog() == false) {
-                                return;
-                            }
-                            else {
-                                string _address = _dialog.IP;
+                            ManuallyConnectDialog _dialog;
+                            while (true) {
+                                _dialog = new ManuallyConnectDialog(_ip, _nick, "Password Required");
+                                _dialog.ShowInTaskbar = false;
+                                _dialog.Owner = this;
+                                if (_dialog.ShowDialog() == false) {
+                                    return;
+                                }
+                                else {
+                                    string _address = _dialog.IP;
 
-                                byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
-                                string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+                                    if(_dialog.password == null) {
+                                        continue;
+                                    }
 
-                                Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
-                                _thread.Name = _address + " handler";
-                                _thread.IsBackground = true;
-                                _thread.Start();
-                            }
+                                    byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
+                                    string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+
+                                    Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
+                                    _thread.Name = _address + " handler";
+                                    _thread.IsBackground = true;
+                                    _thread.Start();
+                                    break;
+                                }
+                            }                           
                         }));
                         break;
 
@@ -338,23 +346,30 @@ namespace ChatApplication
                         }
                         catch (Exception) { }
                         Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                            ManuallyConnectDialog _dialog = new ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
-                            _dialog.ShowInTaskbar = false;
-                            _dialog.Owner = this;
-                            if (_dialog.ShowDialog() == false) {
-                                return;
-                            }
-                            else {
-                                string _address = _dialog.IP;
+                            ManuallyConnectDialog _dialog;
+                            while (true) {
+                                _dialog = new ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
+                                _dialog.ShowInTaskbar = false;
+                                _dialog.Owner = this;
+                                if (_dialog.ShowDialog() == false) {
+                                    return;
+                                }
+                                else {
+                                    if (_dialog.password == null) {
+                                        continue;
+                                    }
+                                    string _address = _dialog.IP;
 
-                                byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
-                                string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+                                    byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
+                                    string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
 
-                                Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
-                                _thread.Name = _address + " handler";
-                                _thread.IsBackground = true;
-                                _thread.Start();
-                            }
+                                    Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
+                                    _thread.Name = _address + " handler";
+                                    _thread.IsBackground = true;
+                                    _thread.Start();
+                                    break;
+                                }
+                            }                            
                         }));
                         break;
 
