@@ -38,6 +38,40 @@ namespace ChatApplication.Network
             }    
         }
 
+        static internal bool ReceiveLongOverSocket(Socket socket, out long msg)
+        {
+            msg = 0;
+            try {
+                int _readSoFar = 0, _size = 8;
+                byte[] _buffer = new byte[8];
+                while (_readSoFar < _size) {
+                    int _read;
+                    try {
+                        _read = socket.Receive(_buffer, _readSoFar, _size - _readSoFar, SocketFlags.None);
+                    }
+                    catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.WouldBlock || ex.SocketErrorCode == SocketError.IOPending || ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable) {
+                            System.Threading.Thread.Sleep(30);
+                            continue;
+                        }
+                        else {
+                            throw ex;
+                        }
+                    }
+                    _readSoFar += _read;
+                    if (_read == 0) {
+                        // connection was broken
+                        return false;
+                    }
+                }
+                msg = System.Net.IPAddress.NetworkToHostOrder(System.BitConverter.ToInt64(_buffer, 0));
+                return true;
+            }
+            catch (System.Exception) {
+                return false;
+            }
+        }
+
         static internal bool ReceiveStringOverSocket(Socket socket, out string msg, int length)
         {
             msg = string.Empty;

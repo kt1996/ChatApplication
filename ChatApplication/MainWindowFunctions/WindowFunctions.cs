@@ -55,6 +55,8 @@ namespace ChatApplication
             StackPanel _st2 = new StackPanel();
             Button _btn = new Button();
             Button _btn2 = new Button();
+            Button _btn3 = new Button();
+            Button _btn4 = new Button();
             TabItem _tab = new TabItem();
             Grid _grd = new Grid();
             TextBlock _txt = new TextBlock();
@@ -103,7 +105,7 @@ namespace ChatApplication
             _ltbox.SetValue(Grid.RowProperty, 0);
             _bndng.Path = new PropertyPath("ActualWidth");
             _bndng.ElementName = "MainContentGrid";
-            _bndng.ConverterParameter = "0.7142857-228.61272-40";
+            _bndng.ConverterParameter = "0.7142857-228.61272-86";
             _bndng.Converter = new Converters.MessageboxWidthConverter();
             _txt2.SetBinding(TextBox.WidthProperty, _bndng);
             _txt2.HorizontalAlignment = HorizontalAlignment.Left;
@@ -120,10 +122,28 @@ namespace ChatApplication
             _btn2.Width = 40;
             _btn2.Margin = new Thickness(0, 2, 0, 0);
             _btn2.Click += new RoutedEventHandler(SendMessageButtonClicked);
+            _btn3.Content = "CL";
+            _btn3.Tag = nick + ":" + ip;
+            _btn3.HorizontalAlignment = HorizontalAlignment.Right;
+            _btn3.SetValue(Grid.RowProperty, 1);
+            _btn3.VerticalAlignment = VerticalAlignment.Center;
+            _btn3.Width = 20;
+            _btn3.Margin = new Thickness(0, 2, 43, 0);
+            _btn3.Click += new RoutedEventHandler(CallButtonClicked);
+            _btn4.Content = "FL";
+            _btn4.Tag = nick + ":" + ip;
+            _btn4.HorizontalAlignment = HorizontalAlignment.Right;
+            _btn4.SetValue(Grid.RowProperty, 1);
+            _btn4.VerticalAlignment = VerticalAlignment.Center;
+            _btn4.Width = 20;
+            _btn4.Margin = new Thickness(0, 2, 66, 0);
+            _btn4.Click += new RoutedEventHandler(SendFileButtonClicked);
 
             _grd.Children.Add(_ltbox);
             _grd.Children.Add(_txt2);
             _grd.Children.Add(_btn2);
+            _grd.Children.Add(_btn3);
+            _grd.Children.Add(_btn4);
 
             _tab.Content = _grd;
 
@@ -307,6 +327,78 @@ namespace ChatApplication
             Thread thread = new Thread(() => SendMessage(_message, _peer));
             thread.Name = "Message Sending to " + _ip;
             thread.Start();
+        }
+
+        private void SendFileButtonClicked(object sender, RoutedEventArgs e)
+        {
+            Button _btn = ((Button)sender);
+            string _buttonTag = (string)_btn.Tag;
+            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
+            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
+
+            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
+            _peer.nick = "";
+            _peer.socket = null;
+            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
+                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
+                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
+                    _peer = _connectedPeer;
+                    break;
+                }
+            }
+
+            if (_peer.socket == null) {
+                WriteToTab(_ip, "Client not available", nick, 0);
+                return;
+            }
+
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if ((result.HasValue && result.Value)) {
+                string _filename = dlg.FileName;
+
+                Thread _thread = new Thread(() => {
+                    Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, 2);
+                    int _port1 = Network.NetworkCommunicationManagers.FindNextFreeTcpPort();
+                    if (!Network.NetworkCommunicationManagers.SendIntOverSocket(_peer.socket, _port1)) {
+                        WriteToLogbox("Failed to send file (Handshake Failed)");
+                        return;
+                    };
+                    
+                    new Network.FileTransfer(true, _filename, _port1);
+                });
+                _thread.Name = "File Transfer Handler";
+                _thread.IsBackground = true;
+                _thread.Start();                
+            }
+        }
+
+        private void CallButtonClicked(object sender, RoutedEventArgs e)
+        {
+            Button _btn = ((Button)sender);
+            string _buttonTag = (string)_btn.Tag;
+            
+            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
+            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
+            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
+            _peer.nick = "";
+            _peer.socket = null;
+            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
+                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
+                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
+                    _peer = _connectedPeer;
+                    break;
+                }
+            }
+
+            if (_peer.socket == null) {
+                WriteToTab(_ip, "Client not available", nick, 0);
+                return;
+            }
         }
 
         private void SortBroadcastingPeers(object sender, EventArgs e)

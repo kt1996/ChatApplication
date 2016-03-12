@@ -11,7 +11,7 @@ using System.Windows.Controls;
 
 namespace ChatApplication
 {
-    /// uncomment loopback
+    /// check file transfer before closing
     /// ctrl + w to close tab
 
     public partial class MainWindow : Window
