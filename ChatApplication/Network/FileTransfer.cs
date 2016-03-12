@@ -9,7 +9,6 @@ namespace ChatApplication.Network
     {
         private bool SENDER_OR_RECEIVER;
         //True for sender, false for receiver
-        private short numberOfTransfersThreadsRemaining;
         private long acknowledgedTransfers;
         private object syncObject;
 
@@ -23,7 +22,6 @@ namespace ChatApplication.Network
             acknowledgedTransfers = 0;
             syncObject = new object();
             SENDER_OR_RECEIVER = senderOrReceiver;
-            numberOfTransfersThreadsRemaining = (short)(SENDER_OR_RECEIVER ? 0 : 3);
 
             controlSocket = null;
             dataSocket = null;
@@ -44,7 +42,7 @@ namespace ChatApplication.Network
         {
             string fileName = Path.GetFileName(filePath);
             long length = (new FileStream(filePath, FileMode.Open)).Length;
-            byte[] arr1 = System.Text.Encoding.ASCII.GetBytes(fileName);
+            byte[] arr1 = System.Text.Encoding.UTF8.GetBytes(fileName);
             byte[] arr2 = BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(length));
             int x = arr2.Length;
             byte[] arr = new byte[arr1.Length + arr2.Length];
@@ -263,7 +261,6 @@ namespace ChatApplication.Network
 
         internal bool AcceptFileTransfer(Socket socket, int port1)
         {
-
             Socket _socket1, _socket2;
             int _port2;
             SocketException _socketException;
@@ -292,7 +289,7 @@ namespace ChatApplication.Network
             };
 
             string _filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "ChatApp" , _filename);
-
+            
             if (File.Exists(_filePath)) {
                 string _extension, _assignedFilename;
                 if (_filename.LastIndexOf('.') == -1) {

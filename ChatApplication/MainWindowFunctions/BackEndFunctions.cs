@@ -428,7 +428,7 @@ namespace ChatApplication
                         case 2:
                             int _port1;
                             Network.NetworkCommunicationManagers.ReceiveIntOverSocket(_peerSocket, out _port1);
-
+                            
                             Thread _thread = new Thread(() => {
                                 if (!(new Network.FileTransfer(false)).AcceptFileTransfer(_peerSocket, _port1)) {
                                     WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") failed");

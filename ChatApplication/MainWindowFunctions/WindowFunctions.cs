@@ -359,7 +359,7 @@ namespace ChatApplication
 
             // Get the selected file name and display in a TextBox 
             if ((result.HasValue && result.Value)) {
-                string _filename = dlg.FileName;
+                string _filePath = dlg.FileName;
 
                 Thread _thread = new Thread(() => {
                     Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, 2);
@@ -369,7 +369,7 @@ namespace ChatApplication
                         return;
                     };
                     
-                    new Network.FileTransfer(true, _filename, _port1);
+                    new Network.FileTransfer(true, _filePath, _port1);
                 });
                 _thread.Name = "File Transfer Handler";
                 _thread.IsBackground = true;

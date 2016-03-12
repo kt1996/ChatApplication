@@ -100,6 +100,7 @@
     <Compile Include="Converters\SubtractTwoMultiBindings.cs" />
     <Compile Include="Converters\TabWidthConverter.cs" />
     <Compile Include="CustomCommands\CustomCommands.cs" />
+    <Compile Include="DataContainers\TwoSocketOneString.cs" />
     <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
     <Compile Include="DataContainers\PeerDataContainer.cs" />
     <Compile Include="Dialogs\EditPasswordWindow.xaml.cs">
@@ -130,6 +131,7 @@
     <Compile Include="Network\ConnectionManagers.cs" />
     <Compile Include="Network\DataReceivers.cs" />
     <Compile Include="Network\DataSenders.cs" />
+    <Compile Include="Network\FileTransfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

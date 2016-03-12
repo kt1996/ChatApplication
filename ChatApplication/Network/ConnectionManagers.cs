@@ -1,10 +1,41 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 namespace ChatApplication.Network
 {
     public static partial class NetworkCommunicationManagers
     {
         static readonly ushort[] TCPPorts = { 5198, 9018, 9019, 9020, 9056 };
+
+        static internal bool ConnectToEndPoint(int port, string address, out Socket socket, out SocketException exception)
+        {
+            socket = null;
+            exception = null;
+            short _numberOfTries = 1;
+            bool _isConnected = false;
+            SocketException _exception = null;
+            while (_numberOfTries <= 3) {
+                Socket _peerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                System.Threading.Thread thread = new System.Threading.Thread(() => ConnectToParticularEndpoint(ref _isConnected, ref _exception, ref _peerSocket, address, port));
+                thread.Name = "Attempt connection to " + address;
+                thread.IsBackground = true;
+                thread.Start();
+                thread.Join(1000); 
+
+                //connected
+                if (_isConnected) {
+                    socket = _peerSocket;
+                    return true;
+                }
+
+                //Some other exception occurs
+                if (_exception != null && _exception.ErrorCode != 10061 && _exception.ErrorCode != 10065 && _exception.ErrorCode != 10060 && _exception.ErrorCode != 10064) {
+                    exception = _exception;
+                    return false;
+                }
+            }
+            return false;
+        }
 
         static internal bool ConnectToEndPoint(string address, out Socket socket, out SocketException exception)
         {
@@ -82,6 +113,18 @@ namespace ChatApplication.Network
             }
         }
 
+        static internal void ConnectToParticularEndpoint(ref bool connected, ref SocketException ex, ref Socket _peerSocket, string address, int port)
+        {
+            System.Net.IPEndPoint client_endpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(address), port);
+            try {
+                _peerSocket.Connect(client_endpoint);
+                connected = true;
+            }
+            catch (SocketException e) {
+                ex = e;
+            }
+        }
+
         static internal void Disconnect(Socket socket)
         {
             try {
@@ -116,6 +159,15 @@ namespace ChatApplication.Network
                     }
                 }
             }
+        }
+
+        static internal int FindNextFreeTcpPort()
+        {
+            TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+            l.Start();
+            int port = ((IPEndPoint)l.LocalEndpoint).Port;
+            l.Stop();
+            return port;
         }
     }
 }
