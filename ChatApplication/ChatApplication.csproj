@@ -100,9 +100,10 @@
     <Compile Include="Converters\SubtractTwoMultiBindings.cs" />
     <Compile Include="Converters\TabWidthConverter.cs" />
     <Compile Include="CustomCommands\CustomCommands.cs" />
-    <Compile Include="DataContainers\TwoSocketOneString.cs" />
-    <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
     <Compile Include="DataContainers\PeerDataContainer.cs" />
+    <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
+    <Compile Include="DataEnumerations\ErrorCommands.cs" />
+    <Compile Include="DataEnumerations\PrimaryCommands.cs" />
     <Compile Include="Dialogs\EditPasswordWindow.xaml.cs">
       <DependentUpon>EditPasswordWindow.xaml</DependentUpon>
     </Compile>

@@ -362,7 +362,7 @@ namespace ChatApplication
                 string _filePath = dlg.FileName;
 
                 Thread _thread = new Thread(() => {
-                    Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, 2);
+                    Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, (int)PrimaryCommands.FileTransfer);
                     int _port1 = Network.NetworkCommunicationManagers.FindNextFreeTcpPort();
                     if (!Network.NetworkCommunicationManagers.SendIntOverSocket(_peer.socket, _port1)) {
                         WriteToLogbox("Failed to send file (Handshake Failed)");

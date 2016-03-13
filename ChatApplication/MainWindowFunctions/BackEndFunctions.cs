@@ -242,7 +242,8 @@ namespace ChatApplication
                     _indexOfDelimiter = _remainingMessage.IndexOf(':');
 
                     if (_indexOfDelimiter == -1) {
-                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, -1);
+                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)PrimaryCommands.Error);
+                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)ErrorCommands.PasswordRequired);
                         Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
                         Network.NetworkCommunicationManagers.Disconnect(socket);
                         return;
@@ -253,7 +254,8 @@ namespace ChatApplication
                     _remainingMessage = _remainingMessage.Substring(0, _indexOfDelimiter);
 
                     if (_providedPassword != password) {
-                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, -2);
+                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)PrimaryCommands.Error);
+                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)ErrorCommands.PasswordIncorrect);
                         Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
                         Network.NetworkCommunicationManagers.Disconnect(socket);
                         return;
@@ -268,7 +270,7 @@ namespace ChatApplication
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_socketRemoteEndPointString.Remove(_socketRemoteEndPointString.LastIndexOf(':')), "Connected", obj.nick, 0); }));
 
             if (serverOrClient) {
-                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 0)) {
+                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)PrimaryCommands.OK)) {
                     Network.NetworkCommunicationManagers.Disconnect(socket);
                     return;
                 };
@@ -282,7 +284,7 @@ namespace ChatApplication
                     Network.NetworkCommunicationManagers.Disconnect(socket);
                     return;
                 };
-                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, 0)) {
+                if (!Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)PrimaryCommands.OK)) {
                     Network.NetworkCommunicationManagers.Disconnect(socket);
                     return;
                 };                
@@ -292,87 +294,91 @@ namespace ChatApplication
             string _ip = _clientSocketRemoteEndPointString.Remove(_clientSocketRemoteEndPointString.LastIndexOf(':'));
             string _nick = obj.nick;
             try {
-                switch (_temp) {
-                    case 0:
+                switch ((PrimaryCommands)_temp) {
+                    case PrimaryCommands.OK:
                         obj.key = Encryption.PerformAssymetricKeyExchangeUsingECDiffieHellmanOnSocket(socket);
                         break;
-                    case -1:
-                        WriteToLogbox("Password Required for " + _ip);
-                        WriteToLogbox("Disconnected- " + _ip);
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Password Required", nick, 0); }));
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Disconnected", nick, 0); }));
-                        try {
-                            socket.Shutdown(SocketShutdown.Both);
-                            socket.Close();
-                        }
-                        catch (Exception) { }
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                            ManuallyConnectDialog _dialog;
-                            while (true) {
-                                _dialog = new ManuallyConnectDialog(_ip, _nick, "Password Required");
-                                _dialog.ShowInTaskbar = false;
-                                _dialog.Owner = this;
-                                if (_dialog.ShowDialog() == false) {
-                                    return;
+                    case PrimaryCommands.Error:
+                        Network.NetworkCommunicationManagers.ReceiveIntOverSocket(socket, out _temp);
+                        Network.NetworkCommunicationManagers.SendIntOverSocket(socket, (int)PrimaryCommands.OK);
+                        switch ((ErrorCommands)_temp) {
+                            case ErrorCommands.PasswordRequired:
+                                WriteToLogbox("Password Required for " + _ip);
+                                WriteToLogbox("Disconnected- " + _ip);
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Password Required", nick, 0); }));
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Disconnected", nick, 0); }));
+                                try {
+                                    socket.Shutdown(SocketShutdown.Both);
+                                    socket.Close();
                                 }
-                                else {
-                                    string _address = _dialog.IP;
+                                catch (Exception) { }
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
+                                    ManuallyConnectDialog _dialog;
+                                    while (true) {
+                                        _dialog = new ManuallyConnectDialog(_ip, _nick, "Password Required");
+                                        _dialog.ShowInTaskbar = false;
+                                        _dialog.Owner = this;
+                                        if (_dialog.ShowDialog() == false) {
+                                            return;
+                                        }
+                                        else {
+                                            string _address = _dialog.IP;
 
-                                    if(_dialog.password == null) {
-                                        continue;
+                                            if (_dialog.password == null) {
+                                                continue;
+                                            }
+
+                                            byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
+                                            string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+
+                                            Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
+                                            _thread.Name = _address + " handler";
+                                            _thread.IsBackground = true;
+                                            _thread.Start();
+                                            break;
+                                        }
                                     }
-
-                                    byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
-                                    string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
-
-                                    Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
-                                    _thread.Name = _address + " handler";
-                                    _thread.IsBackground = true;
-                                    _thread.Start();
-                                    break;
+                                }));
+                                break;
+                            case ErrorCommands.PasswordIncorrect:
+                                WriteToLogbox("Incorrect password provided for " + _ip);
+                                WriteToLogbox("Disconnected- " + _ip);
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Incorrect Password", nick, 0); }));
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Disconnected", nick, 0); }));
+                                try {
+                                    socket.Shutdown(SocketShutdown.Both);
+                                    socket.Close();
                                 }
-                            }                           
-                        }));
-                        break;
+                                catch (Exception) { }
+                                Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
+                                    ManuallyConnectDialog _dialog;
+                                    while (true) {
+                                        _dialog = new ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
+                                        _dialog.ShowInTaskbar = false;
+                                        _dialog.Owner = this;
+                                        if (_dialog.ShowDialog() == false) {
+                                            return;
+                                        }
+                                        else {
+                                            if (_dialog.password == null) {
+                                                continue;
+                                            }
+                                            string _address = _dialog.IP;
 
-                    case -2:
-                        WriteToLogbox("Incorrect password provided for " + _ip);
-                        WriteToLogbox("Disconnected- " + _ip);
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Incorrect Password", nick, 0); }));
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Disconnected", nick, 0); }));
-                        try {
-                            socket.Shutdown(SocketShutdown.Both);
-                            socket.Close();
-                        }
-                        catch (Exception) { }
-                        Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                            ManuallyConnectDialog _dialog;
-                            while (true) {
-                                _dialog = new ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
-                                _dialog.ShowInTaskbar = false;
-                                _dialog.Owner = this;
-                                if (_dialog.ShowDialog() == false) {
-                                    return;
-                                }
-                                else {
-                                    if (_dialog.password == null) {
-                                        continue;
+                                            byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
+                                            string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
+
+                                            Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
+                                            _thread.Name = _address + " handler";
+                                            _thread.IsBackground = true;
+                                            _thread.Start();
+                                            break;
+                                        }
                                     }
-                                    string _address = _dialog.IP;
-
-                                    byte[] hash = ((System.Security.Cryptography.HashAlgorithm)System.Security.Cryptography.CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(_dialog.password));
-                                    string _encodedPassword = BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
-
-                                    Thread _thread = new Thread(() => ConnectToPeerByIP(_address, _encodedPassword));
-                                    _thread.Name = _address + " handler";
-                                    _thread.IsBackground = true;
-                                    _thread.Start();
-                                    break;
-                                }
-                            }                            
-                        }));
+                                }));
+                                break;
+                        }
                         break;
-
                     default:
                         _message = "Invalid MessageCode Received, The other client is most probably running a newer version of the application with a new Feature.. !!";
                         Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, _message, _nick, 0); }));
@@ -393,6 +399,7 @@ namespace ChatApplication
         private void ProcessClient(ConnectedPeerDataContainer client)
         {
             int _messageType = 0;
+            PrimaryCommands _primaryCommand;
             string _clientSocketRemoteEndPointString = client.socket.RemoteEndPoint.ToString();
             string _ip = _clientSocketRemoteEndPointString.Remove(_clientSocketRemoteEndPointString.LastIndexOf(':'));
             string _nick = client.nick;
@@ -408,11 +415,12 @@ namespace ChatApplication
                     if (!Network.NetworkCommunicationManagers.ReceiveDecodedIntOverSocket(_peerSocket, client.key, out _messageType)) {
                         break;
                     }
+                    _primaryCommand = (PrimaryCommands)_messageType;
                     /// MessageType details
                     /// 1- Normal sending and receive message
 
-                    switch (_messageType) {
-                        case 1:
+                    switch (_primaryCommand) {
+                        case PrimaryCommands.TextMessage:
                             if (!Network.NetworkCommunicationManagers.ReceiveDecodedIntOverSocket(_peerSocket, client.key, out _size)) {
                                 break;
                             }
@@ -425,7 +433,7 @@ namespace ChatApplication
                             WriteToLogbox("Message Received- " + _nick + " (" + _clientSocketRemoteEndPointString + ") : " + _message);
                             break;
 
-                        case 2:
+                        case PrimaryCommands.FileTransfer:
                             int _port1;
                             Network.NetworkCommunicationManagers.ReceiveIntOverSocket(_peerSocket, out _port1);
                             
@@ -482,7 +490,7 @@ namespace ChatApplication
         {
             Socket _peerSocket = client.socket;
 
-            if (!Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peerSocket, client.key, 1)) {
+            if (!Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peerSocket, client.key, (int)PrimaryCommands.TextMessage)) {
                 // connection was broken
                 return;
             }
