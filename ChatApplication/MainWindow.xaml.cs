@@ -36,6 +36,7 @@ namespace ChatApplication
         private short numberOfBroadcastsSinceListUpdate = 0;
         private bool isServerRunning = false;
         private bool isBroadcasting = true;
+        internal long maxAcceptedFileSizeWithoutConfirmation = 5242880;
         internal string nick = "";
         private string password = null;
         private string encodedMachineName;

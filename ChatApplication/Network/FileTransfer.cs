@@ -259,7 +259,7 @@ namespace ChatApplication.Network
             }
         }
 
-        internal bool AcceptFileTransfer(Socket socket, int port1)
+        internal bool AcceptFileTransfer(Socket socket, int port1, MainWindow mainWindow)
         {
             Socket _socket1, _socket2;
             int _port2;
@@ -283,6 +283,23 @@ namespace ChatApplication.Network
             NetworkCommunicationManagers.ReceiveIntOverSocket(_socket1, out _temp);
             NetworkCommunicationManagers.ReceiveByteArrayOverSocket(_socket1, out _buffer, _temp);
             unpackFileMetadata(_buffer, out _filename, out _size);
+
+            if(_size > mainWindow.maxAcceptedFileSizeWithoutConfirmation) {
+                ManualResetEvent _replyRecieved = new ManualResetEvent(false);
+                System.Windows.MessageBoxResult _continue = System.Windows.MessageBoxResult.No;
+                mainWindow.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() => {
+                    Thread.Sleep(1000);
+                    _continue = System.Windows.MessageBox.Show("Receive file \"" + _filename + "\" from " + socket.RemoteEndPoint.ToString().Remove(socket.RemoteEndPoint.ToString().LastIndexOf(':')) + " (Size: "+ _size + " bytes)", "File Transfer", System.Windows.MessageBoxButton.YesNo);
+                    _replyRecieved.Set();
+                }));
+                _replyRecieved.WaitOne();
+                _replyRecieved.Dispose();
+                if (_continue != System.Windows.MessageBoxResult.Yes) {
+                    NetworkCommunicationManagers.Disconnect(_socket1);
+                    NetworkCommunicationManagers.Disconnect(_socket2);
+                    return false;
+                }
+            }
 
             if(!Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "ChatApp"))){
                 Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "ChatApp"));
