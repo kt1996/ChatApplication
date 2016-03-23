@@ -157,6 +157,30 @@ namespace ChatApplication
             }
         }
 
+        private void CallButtonClicked(object sender, RoutedEventArgs e)
+        {
+            Button _btn = ((Button)sender);
+            string _buttonTag = (string)_btn.Tag;
+
+            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
+            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
+            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
+            _peer.nick = "";
+            _peer.socket = null;
+            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
+                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
+                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
+                    _peer = _connectedPeer;
+                    break;
+                }
+            }
+
+            if (_peer.socket == null) {
+                WriteToTab(_ip, "Client not available", nick, 0);
+                return;
+            }
+        }
+
         private int CompareAscending(PeerDataContainer a, PeerDataContainer b)
         {
             if (a == null) {
@@ -361,43 +385,39 @@ namespace ChatApplication
             if ((result.HasValue && result.Value)) {
                 string _filePath = dlg.FileName;
 
+                FileTransferContainer fileTransferContainer = new FileTransferContainer() {
+                    fileName = System.IO.Path.GetFileName(_filePath),
+                    ID = _peer.nick + " (" + _ip + ")",
+                    progress = 0,
+                    status = FileTransferStatus.Runnning,
+                    transferType = FileTransferType.Upload,
+                };
+                using (System.IO.FileStream _fs = new System.IO.FileStream(_filePath, System.IO.FileMode.Open)) {
+                    fileTransferContainer.sizeInBytes = _fs.Length;
+                    fileTransferContainer.size = Converters.DataConverter.bytesToReadableString(fileTransferContainer.sizeInBytes);
+                }
+
+                lock (RunningTransfers) {
+                    RunningTransfers.Add(fileTransferContainer);
+                }
+
                 Thread _thread = new Thread(() => {
                     Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, (int)PrimaryCommands.FileTransfer);
+                    
                     int _port1 = Network.NetworkCommunicationManagers.FindNextFreeTcpPort();
                     if (!Network.NetworkCommunicationManagers.SendIntOverSocket(_peer.socket, _port1)) {
                         WriteToLogbox("Failed to send file (Handshake Failed)");
+                        lock (RunningTransfers) {
+                            fileTransferContainer.status = FileTransferStatus.Error;
+                        }
                         return;
                     };
                     
-                    new Network.FileTransfer(true, _filePath, _port1);
+                    new Network.FileTransfer(fileTransferContainer, _filePath, _port1);
                 });
                 _thread.Name = "File Transfer Handler";
                 _thread.IsBackground = true;
                 _thread.Start();                
-            }
-        }
-
-        private void CallButtonClicked(object sender, RoutedEventArgs e)
-        {
-            Button _btn = ((Button)sender);
-            string _buttonTag = (string)_btn.Tag;
-            
-            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
-            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
-            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
-            _peer.nick = "";
-            _peer.socket = null;
-            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
-                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
-                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
-                    _peer = _connectedPeer;
-                    break;
-                }
-            }
-
-            if (_peer.socket == null) {
-                WriteToTab(_ip, "Client not available", nick, 0);
-                return;
             }
         }
 

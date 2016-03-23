@@ -2,31 +2,30 @@
 using System.IO;
 using System.Threading;
 using System.Net.Sockets;
+using System.Windows.Threading;
 
 namespace ChatApplication.Network
 {
     public class FileTransfer
     {
-        private bool SENDER_OR_RECEIVER;
-        //True for sender, false for receiver
         private long acknowledgedTransfers;
         private object syncObject;
-
         int port1, port2;
-
         private Socket controlSocket, dataSocket;
+        public DataContainers.FileTransferContainer fileTransferContainer;
+        public static MainWindow mainWindow;
 
+        public static System.ComponentModel.BindingList<DataContainers.FileTransferContainer> RunningTransfers;
 
-        public FileTransfer(bool senderOrReceiver, string filePath = null, int intialPort = 0)
+        public FileTransfer(DataContainers.FileTransferContainer fileTransferContainer, string filePath = null, int intialPort = 0)
         {
             acknowledgedTransfers = 0;
             syncObject = new object();
-            SENDER_OR_RECEIVER = senderOrReceiver;
 
             controlSocket = null;
             dataSocket = null;
 
-            if (senderOrReceiver) {
+            if (fileTransferContainer.transferType == FileTransferType.Upload) {
                 port1 = intialPort;
 
                 dataSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -34,6 +33,8 @@ namespace ChatApplication.Network
                 dataSocket.Listen(1);
                 dataSocket.BeginAccept(new AsyncCallback(EndAcceptDataConnection), filePath);
             }
+
+            this.fileTransferContainer = fileTransferContainer;
         }
 
         private const int FILE_BUFFER_SIZE = 8175;
@@ -41,7 +42,10 @@ namespace ChatApplication.Network
         static internal byte[] packFileMetadata(string filePath)
         {
             string fileName = Path.GetFileName(filePath);
-            long length = (new FileStream(filePath, FileMode.Open)).Length;
+            long length;
+            using (FileStream _fs = new FileStream(filePath, FileMode.Open)) {
+                length = _fs.Length;
+            }                
             byte[] arr1 = System.Text.Encoding.UTF8.GetBytes(fileName);
             byte[] arr2 = BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(length));
             int x = arr2.Length;
@@ -102,6 +106,13 @@ namespace ChatApplication.Network
 
                         _index += _read;
                         _count++;
+                        if (_count % 200 == 0) {
+                            lock (fileTransferContainer) {
+                                if (Math.Round(((((double)_index / _size) * 100) - fileTransferContainer.progress), 1) >= 0.1) {
+                                    fileTransferContainer.progress = (float)Math.Round(((double)_index / _size) * 100, 1);
+                                }
+                            }
+                        }
                         if (_count == _INITIAL) {
                             _count = 0;
                             break;
@@ -132,6 +143,11 @@ namespace ChatApplication.Network
                         _index += _read;
                         _count++;
                         if (_count % 200 == 0) {
+                            lock(fileTransferContainer){
+                                if (Math.Round(((((double)_index / _size) * 100) - fileTransferContainer.progress), 1) >= 0.1) {
+                                    fileTransferContainer.progress = (float)Math.Round((((double)_index/_size) * 100), 1);
+                                }
+                            }                            
                             bool _wait = true;
                             while (true) {
                                 lock (syncObject) {
@@ -148,9 +164,22 @@ namespace ChatApplication.Network
                         }
 
                     }
+                    if(_index == _size) {
+                        lock (fileTransferContainer) {
+                            fileTransferContainer.progress = 100;
+                            fileTransferContainer.status = FileTransferStatus.Finished;
+                        }
+                    }
+                    else {
+                        lock (fileTransferContainer) {
+                            fileTransferContainer.status = FileTransferStatus.Error;
+                        }
+                    }                    
                 }
                 catch {
-
+                    lock (fileTransferContainer) {
+                        fileTransferContainer.status = FileTransferStatus.Error;
+                    }
                 }
             }
         }
@@ -209,6 +238,11 @@ namespace ChatApplication.Network
                     _index += _size;
                     _count++;
                     if (_count % 200 == 0) {
+                        lock (fileTransferContainer) {
+                            if (Math.Round(((((double)_index / length) * 100) - fileTransferContainer.progress), 1) >= 0.1) {
+                                fileTransferContainer.progress = (float)Math.Round((((double)_index / length) * 100), 1);
+                            }
+                        }
                         _count = 0;
                         ThreadPool.QueueUserWorkItem(state => NetworkCommunicationManagers.SendByteArrayOverSocket(controlSocket, new byte[] { (byte)(new Random()).Next(0, 255) }));
                     }
@@ -218,6 +252,10 @@ namespace ChatApplication.Network
             if (_index < _size) {
                 File.Delete(filePath);
                 return false;
+            }
+            else {
+                fileTransferContainer.status = FileTransferStatus.Finished;
+                fileTransferContainer.progress = 100;
             }
             return true;
         }
@@ -237,6 +275,12 @@ namespace ChatApplication.Network
                 controlSocket.BeginAccept(new AsyncCallback(EndAcceptControlConnection), ar.AsyncState);               
             }
             catch (Exception) {
+                lock (RunningTransfers) {
+                    fileTransferContainer.status = FileTransferStatus.Error;
+                    if(mainWindow.fileTransferWindow != null) {
+                        mainWindow.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { mainWindow.fileTransferWindow.downloadsListView.Items.Refresh(); }));
+                    }
+                }
                 return;
             }
         }
@@ -255,6 +299,12 @@ namespace ChatApplication.Network
                 managedSendFileOverSockets(dataSocket, controlSocket, _filePath);
             }
             catch (Exception) {
+                lock (RunningTransfers) {
+                    fileTransferContainer.status = FileTransferStatus.Error;
+                    if(mainWindow.fileTransferWindow != null) {
+                        mainWindow.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { mainWindow.fileTransferWindow.downloadsListView.Items.Refresh(); }));
+                    }
+                }
                 return;
             }
         }
@@ -284,10 +334,14 @@ namespace ChatApplication.Network
             NetworkCommunicationManagers.ReceiveByteArrayOverSocket(_socket1, out _buffer, _temp);
             unpackFileMetadata(_buffer, out _filename, out _size);
 
-            if(_size > mainWindow.maxAcceptedFileSizeWithoutConfirmation) {
+            fileTransferContainer.fileName = _filename;
+            fileTransferContainer.sizeInBytes = _size;
+            fileTransferContainer.size = Converters.DataConverter.bytesToReadableString(_size);
+                     
+            if (_size > mainWindow.maxAcceptedFileSizeWithoutConfirmation) {
                 ManualResetEvent _replyRecieved = new ManualResetEvent(false);
                 System.Windows.MessageBoxResult _continue = System.Windows.MessageBoxResult.No;
-                mainWindow.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, (Action)(() => {
+                mainWindow.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
                     Thread.Sleep(1000);
                     _continue = System.Windows.MessageBox.Show("Receive file \"" + _filename + "\" from " + socket.RemoteEndPoint.ToString().Remove(socket.RemoteEndPoint.ToString().LastIndexOf(':')) + " (Size: "+ _size + " bytes)", "File Transfer", System.Windows.MessageBoxButton.YesNo);
                     _replyRecieved.Set();
@@ -325,7 +379,6 @@ namespace ChatApplication.Network
                     }
                 }
             }
-
             return managedReceiveFileOverSockets(_socket1, _socket2, _filePath, _size);
         }
     }

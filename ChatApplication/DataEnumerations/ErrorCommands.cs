@@ -4,5 +4,6 @@
     {
         PasswordRequired,
         PasswordIncorrect,
+        NotSupported,
     }  
 }

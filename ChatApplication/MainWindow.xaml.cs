@@ -27,6 +27,9 @@ namespace ChatApplication
 
         private List<PeerDataContainer> broadcastingPeersList = new List<PeerDataContainer>();
 
+        private System.ComponentModel.BindingList<FileTransferContainer> RunningTransfers = new System.ComponentModel.BindingList<FileTransferContainer>();
+        internal Dialogs.FileTransferWindow fileTransferWindow;
+
         /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
         //Back-end variables
         /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -61,6 +64,8 @@ namespace ChatApplication
             //Update clients list periodically
             updateBroadcastListTimer = new Timer(UpdateAvailableClients, null, 0, 20000);
 
+            Network.FileTransfer.RunningTransfers = RunningTransfers;
+            Network.FileTransfer.mainWindow = this;
         }        
     }
 }

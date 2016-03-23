@@ -339,7 +339,7 @@ namespace ChatApplication
                                         }
                                     }
                                 }));
-                                break;
+                                return;
                             case ErrorCommands.PasswordIncorrect:
                                 WriteToLogbox("Incorrect password provided for " + _ip);
                                 WriteToLogbox("Disconnected- " + _ip);
@@ -376,9 +376,9 @@ namespace ChatApplication
                                         }
                                     }
                                 }));
-                                break;
+                                return;
                         }
-                        break;
+                        return;
                     default:
                         _message = "Invalid MessageCode Received, The other client is most probably running a newer version of the application with a new Feature.. !!";
                         Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, _message, _nick, 0); }));
@@ -407,7 +407,6 @@ namespace ChatApplication
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { AddNewTab(client.nick, _clientSocketRemoteEndPointString.Remove(_clientSocketRemoteEndPointString.LastIndexOf(':'))); }));
             WriteToLogbox("Connected to- " + _ip);
             try {
-                bool _continue = true;
                 string _message;
                 int _size;
                 while (_peerSocket.Connected) {
@@ -416,8 +415,6 @@ namespace ChatApplication
                         break;
                     }
                     _primaryCommand = (PrimaryCommands)_messageType;
-                    /// MessageType details
-                    /// 1- Normal sending and receive message
 
                     switch (_primaryCommand) {
                         case PrimaryCommands.TextMessage:
@@ -436,13 +433,33 @@ namespace ChatApplication
                         case PrimaryCommands.FileTransfer:
                             int _port1;
                             Network.NetworkCommunicationManagers.ReceiveIntOverSocket(_peerSocket, out _port1);
-                            
+                            FileTransferContainer fileTransferContainer = new FileTransferContainer() {
+                                status = FileTransferStatus.Runnning,
+                                fileName = "(fetching....)",
+                                ID = _nick + " (" + _ip + ")",
+                                progress = 0,
+                                size = "(fetching....)",
+                                transferType = FileTransferType.Download,
+                            };
+
+                            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
+                                lock (RunningTransfers) {
+                                    RunningTransfers.Add(fileTransferContainer);
+                                }
+                            }));
+
                             Thread _thread = new Thread(() => {
-                                if (!(new Network.FileTransfer(false)).AcceptFileTransfer(_peerSocket, _port1, this)) {
+                                if (!(new Network.FileTransfer(fileTransferContainer)).AcceptFileTransfer(_peerSocket, _port1, this)) {
                                     WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") failed");
+                                    lock (fileTransferContainer) {
+                                        fileTransferContainer.status = FileTransferStatus.Error;
+                                    }
                                 }
                                 else {
                                     WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") done");
+                                    lock (fileTransferContainer) {
+                                        fileTransferContainer.status = FileTransferStatus.Finished;
+                                    }
                                 }
                             });
                             _thread.Name = "File Transfer from " + _clientSocketRemoteEndPointString;
@@ -453,14 +470,9 @@ namespace ChatApplication
                         default:
                             _message = "Invalid MessageCode Received, The other client is most probably running a newer version of the application with a new Feature.. !!";
                             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, _message, _nick, 0); }));
-                            WriteToLogbox("Invalid MessageCode- " + _nick + " (" + _clientSocketRemoteEndPointString + ") : " + _messageType);
-                            _continue = false;
+                            WriteToLogbox("Unsupported MessageCode from- " + _nick + " (" + _clientSocketRemoteEndPointString + ") received");
                             break;
                     }
-                    if (!_continue) {
-                        break;
-                    }
-
                 }
                 connectedPeersList.Remove(client);
             }
@@ -494,6 +506,7 @@ namespace ChatApplication
                 // connection was broken
                 return;
             }
+
 
             if (!Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peerSocket, client.key, msg.Length)) {
                 // connection was broken

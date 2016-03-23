@@ -72,6 +72,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\FileTransferWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\EditPasswordWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -88,6 +92,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\DataConverter.cs" />
     <Compile Include="Converters\JoinNickAndIP.cs" />
     <Compile Include="Converters\MessageboxWidthConverter.cs" />
     <Compile Include="Converters\MultiplyAConstant.cs" />
@@ -100,10 +105,16 @@
     <Compile Include="Converters\SubtractTwoMultiBindings.cs" />
     <Compile Include="Converters\TabWidthConverter.cs" />
     <Compile Include="CustomCommands\CustomCommands.cs" />
+    <Compile Include="DataContainers\FileTransferContainer.cs" />
     <Compile Include="DataContainers\PeerDataContainer.cs" />
     <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
+    <Compile Include="DataEnumerations\FileTransferStatus.cs" />
+    <Compile Include="DataEnumerations\FileTransferType.cs" />
     <Compile Include="DataEnumerations\ErrorCommands.cs" />
     <Compile Include="DataEnumerations\PrimaryCommands.cs" />
+    <Compile Include="Dialogs\FileTransferWindow.xaml.cs">
+      <DependentUpon>FileTransferWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditPasswordWindow.xaml.cs">
       <DependentUpon>EditPasswordWindow.xaml</DependentUpon>
     </Compile>

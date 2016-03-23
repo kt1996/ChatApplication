@@ -5,6 +5,6 @@
         OK,
         Error,
         TextMessage,
-        FileTransfer
+        FileTransfer,
     }
 }

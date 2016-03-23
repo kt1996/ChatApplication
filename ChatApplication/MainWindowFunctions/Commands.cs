@@ -39,5 +39,21 @@ namespace ChatApplication
                 _thread.Start();
             }
         }
+
+        private void ShowFileTransferWindowCommandExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (fileTransferWindow == null) {
+                fileTransferWindow = new Dialogs.FileTransferWindow(RunningTransfers);
+                lock (fileTransferWindow) {
+                    fileTransferWindow.Closed += (sender2, args) => fileTransferWindow = null;
+                    fileTransferWindow.Show();
+                }
+            }
+            else {
+                lock (fileTransferWindow) {
+                    fileTransferWindow.Activate();
+                }
+            }
+        }
     }
 }
