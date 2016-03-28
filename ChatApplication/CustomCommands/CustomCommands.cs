@@ -33,5 +33,15 @@ namespace ChatApplication.CustomCommands
                                         new KeyGesture(Key.N, ModifierKeys.Control)
                         }
                 );
+
+        public static readonly RoutedUICommand ShowFileTransferWindow = new RoutedUICommand(
+                        "Show the File Transfers Window",
+                        "ShowFileTransferWindow",
+                        typeof(CustomCommands),
+                        new InputGestureCollection()
+                        {
+                                        new KeyGesture(Key.J, ModifierKeys.Control)
+                        }
+                );
     }
 }

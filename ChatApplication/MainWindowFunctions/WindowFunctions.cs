@@ -30,10 +30,10 @@ namespace ChatApplication
                 //Do nothing items will be sorted by themself later when content has been rendered
             }
             else if (listViewSortAdorner.Direction == System.ComponentModel.ListSortDirection.Ascending) {
-                broadcastingPeersList.Sort(CompareAscending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareAscending);
             }
             else {
-                broadcastingPeersList.Sort(CompareDescending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareDescending);
             }
 
             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { BroadcastingList.ItemsSource = broadcastingPeersList; BroadcastingList.Items.Refresh(); }));
@@ -55,6 +55,8 @@ namespace ChatApplication
             StackPanel _st2 = new StackPanel();
             Button _btn = new Button();
             Button _btn2 = new Button();
+            Button _btn3 = new Button();
+            Button _btn4 = new Button();
             TabItem _tab = new TabItem();
             Grid _grd = new Grid();
             TextBlock _txt = new TextBlock();
@@ -73,7 +75,7 @@ namespace ChatApplication
             _btn.Margin = new Thickness(7, 0, 0, 0);
             _st.VerticalAlignment = VerticalAlignment.Center;
             _st.HorizontalAlignment = HorizontalAlignment.Center;
-            _closeButtonImage.Source = new BitmapImage(new Uri(@"/Resources/normal_close_icon.png", UriKind.Relative));
+            _closeButtonImage.Source = new BitmapImage(new Uri(@"/Resources/Images/NormalCloseIcon.png", UriKind.Relative));
             _closeButtonImage.Height = 13;
             _closeButtonImage.Width = 13;
             _st.Children.Add(_closeButtonImage);
@@ -103,7 +105,7 @@ namespace ChatApplication
             _ltbox.SetValue(Grid.RowProperty, 0);
             _bndng.Path = new PropertyPath("ActualWidth");
             _bndng.ElementName = "MainContentGrid";
-            _bndng.ConverterParameter = "0.7142857-228.61272-40";
+            _bndng.ConverterParameter = "0.7142857-228.61272-86";
             _bndng.Converter = new Converters.MessageboxWidthConverter();
             _txt2.SetBinding(TextBox.WidthProperty, _bndng);
             _txt2.HorizontalAlignment = HorizontalAlignment.Left;
@@ -120,10 +122,28 @@ namespace ChatApplication
             _btn2.Width = 40;
             _btn2.Margin = new Thickness(0, 2, 0, 0);
             _btn2.Click += new RoutedEventHandler(SendMessageButtonClicked);
+            _btn3.Content = "CL";
+            _btn3.Tag = nick + ":" + ip;
+            _btn3.HorizontalAlignment = HorizontalAlignment.Right;
+            _btn3.SetValue(Grid.RowProperty, 1);
+            _btn3.VerticalAlignment = VerticalAlignment.Center;
+            _btn3.Width = 20;
+            _btn3.Margin = new Thickness(0, 2, 43, 0);
+            _btn3.Click += new RoutedEventHandler(CallButtonClicked);
+            _btn4.Content = "FL";
+            _btn4.Tag = nick + ":" + ip;
+            _btn4.HorizontalAlignment = HorizontalAlignment.Right;
+            _btn4.SetValue(Grid.RowProperty, 1);
+            _btn4.VerticalAlignment = VerticalAlignment.Center;
+            _btn4.Width = 20;
+            _btn4.Margin = new Thickness(0, 2, 66, 0);
+            _btn4.Click += new RoutedEventHandler(SendFileButtonClicked);
 
             _grd.Children.Add(_ltbox);
             _grd.Children.Add(_txt2);
             _grd.Children.Add(_btn2);
+            _grd.Children.Add(_btn3);
+            _grd.Children.Add(_btn4);
 
             _tab.Content = _grd;
 
@@ -137,49 +157,32 @@ namespace ChatApplication
             }
         }
 
-        private int CompareAscending(PeerDataContainer a, PeerDataContainer b)
+        private void CallButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (a == null) {
-                if (b == null) {
-                    return 0;
-                }
-                else {
-                    return -1;
+            Button _btn = ((Button)sender);
+            string _buttonTag = (string)_btn.Tag;
+
+            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
+            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
+            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
+            _peer.nick = "";
+            _peer.socket = null;
+            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
+                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
+                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
+                    _peer = _connectedPeer;
+                    break;
                 }
             }
-            else {
-                if (b == null) {
-                    return 1;
-                }
-                else {
-                    int retval = a.nick.Length.CompareTo(b.nick.Length);
 
-                    if (retval != 0) {
-                        return retval;
-                    }
-                    else {
-                        return a.nick.CompareTo(b.nick);
-                    }
-
-                }
-
+            if (_peer.socket == null) {
+                WriteToTab(_ip, "Client not available", nick, 0);
+                return;
             }
+
+            MessageBox.Show("Calling Feature not implemented as yet, Please check back later :-D");
         }
-
-        private int CompareDescending(PeerDataContainer a, PeerDataContainer b)
-        {
-            int result = CompareAscending(a, b);
-            if (result == 1) {
-                return -1;
-            }
-            else if (result == -1) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-
+        
         private void ConnectFromBroadcastList(object sender, RoutedEventArgs e)
         {
             string _tag = (string)((MenuItem)sender).Tag;
@@ -233,14 +236,14 @@ namespace ChatApplication
         {
             Button _btn = sender as Button;
             StackPanel _st = (StackPanel)_btn.Content;
-            _st.Children.OfType<Image>().First().Source = new BitmapImage(new Uri(@"/Resources/pressed_close_icon.png", UriKind.Relative));
+            _st.Children.OfType<Image>().First().Source = new BitmapImage(new Uri(@"/Resources/Images/PressedCloseIcon.png", UriKind.Relative));
         }
 
         private void MouseUpOnTabCloseButton(object sender, MouseEventArgs e)
         {
             Button _btn = sender as Button;
             StackPanel _st = (StackPanel)_btn.Content;
-            _st.Children.OfType<Image>().First<Image>().Source = new BitmapImage(new Uri(@"/Resources/normal_close_icon.png", UriKind.Relative));
+            _st.Children.OfType<Image>().First<Image>().Source = new BitmapImage(new Uri(@"/Resources/Images/NormalCloseIcon.png", UriKind.Relative));
             if (MessageBox.Show("      Do you really want to close this window ?\n        (Currently all chat history will be lost)", "Close Connection", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes) {
                 TabItem _tab = ((TabItem)((StackPanel)_btn.Parent).Parent);
                 Disconnect((string)_tab.Tag);
@@ -309,6 +312,75 @@ namespace ChatApplication
             thread.Start();
         }
 
+        private void SendFileButtonClicked(object sender, RoutedEventArgs e)
+        {
+            Button _btn = ((Button)sender);
+            string _buttonTag = (string)_btn.Tag;
+            string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
+            string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));
+
+            ConnectedPeerDataContainer _peer = new ConnectedPeerDataContainer();
+            _peer.nick = "";
+            _peer.socket = null;
+            foreach (ConnectedPeerDataContainer _connectedPeer in connectedPeersList) {
+                string _connectedPeerSocketString = _connectedPeer.socket.RemoteEndPoint.ToString();
+                if (_connectedPeerSocketString.Remove(_connectedPeerSocketString.LastIndexOf(':')) == _ip) {
+                    _peer = _connectedPeer;
+                    break;
+                }
+            }
+
+            if (_peer.socket == null) {
+                WriteToTab(_ip, "Client not available", nick, 0);
+                return;
+            }
+
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if ((result.HasValue && result.Value)) {
+                string _filePath = dlg.FileName;
+
+                FileTransferContainer fileTransferContainer = new FileTransferContainer() {
+                    fileName = System.IO.Path.GetFileName(_filePath),
+                    ID = _peer.nick + " (" + _ip + ")",
+                    progress = 0,
+                    status = FileTransferStatus.Running,
+                    transferType = FileTransferType.Upload,
+                    pausedBy = PausedBy.None,
+                };
+                using (System.IO.FileStream _fs = new System.IO.FileStream(_filePath, System.IO.FileMode.Open)) {
+                    fileTransferContainer.sizeInBytes = _fs.Length;
+                    fileTransferContainer.size = Converters.DataConverter.bytesToReadableString(fileTransferContainer.sizeInBytes);
+                }
+
+                lock (RunningTransfers) {
+                    RunningTransfers.Add(fileTransferContainer);
+                }
+
+                Thread _thread = new Thread(() => {
+                    Network.NetworkCommunicationManagers.SendEncryptedIntOverSocket(_peer.socket, _peer.key, (int)PrimaryCommands.FileTransfer);
+                    
+                    int _port1 = Network.NetworkCommunicationManagers.FindNextFreeTcpPort();
+                    if (!Network.NetworkCommunicationManagers.SendIntOverSocket(_peer.socket, _port1)) {
+                        WriteToLogbox("Failed to send file (Handshake Failed)");
+                        lock (RunningTransfers) {
+                            fileTransferContainer.status = FileTransferStatus.Error;
+                        }
+                        return;
+                    };
+                    
+                    new Network.FileTransfer(fileTransferContainer, _filePath, _port1);
+                });
+                _thread.Name = "File Transfer Handler";
+                _thread.IsBackground = true;
+                _thread.Start();                
+            }
+        }
+
         private void SortBroadcastingPeers(object sender, EventArgs e)
         {
             //Incase it is being called by window for first time initialization then get the nick too
@@ -338,10 +410,10 @@ namespace ChatApplication
             listViewSortCol = _column;
 
             if (newDir == System.ComponentModel.ListSortDirection.Ascending) {
-                broadcastingPeersList.Sort(CompareAscending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareAscending);
             }
             else {
-                broadcastingPeersList.Sort(CompareDescending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareDescending);
             }
 
             listViewSortAdorner = new Graphics.Adorners.SortAdorner(listViewSortCol, newDir);
@@ -445,10 +517,10 @@ namespace ChatApplication
                 //Do nothing items will be sorted by themself later when content has been rendered
             }
             else if (listViewSortAdorner.Direction == System.ComponentModel.ListSortDirection.Ascending) {
-                broadcastingPeersList.Sort(CompareAscending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareAscending);
             }
             else {
-                broadcastingPeersList.Sort(CompareDescending);
+                broadcastingPeersList.Sort(Comparers.PeerContainerCompare.CompareDescending);
             }
             Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() => { BroadcastingList.ItemsSource = broadcastingPeersList; BroadcastingList.Items.Refresh(); }));
         }

@@ -11,7 +11,7 @@ using System.Windows.Controls;
 
 namespace ChatApplication
 {
-    /// uncomment loopback
+    /// check file transfer before closing
     /// ctrl + w to close tab
 
     public partial class MainWindow : Window
@@ -27,6 +27,9 @@ namespace ChatApplication
 
         private List<PeerDataContainer> broadcastingPeersList = new List<PeerDataContainer>();
 
+        private System.ComponentModel.BindingList<FileTransferContainer> RunningTransfers = new System.ComponentModel.BindingList<FileTransferContainer>();
+        internal Dialogs.FileTransferWindow fileTransferWindow;
+
         /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
         //Back-end variables
         /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -36,13 +39,14 @@ namespace ChatApplication
         private short numberOfBroadcastsSinceListUpdate = 0;
         private bool isServerRunning = false;
         private bool isBroadcasting = true;
+        internal long maxAcceptedFileSizeWithoutConfirmation = 5242880;
         internal string nick = "";
         private string password = null;
         private string encodedMachineName;
         private UdpClient broadcastReceiver;
         List<IPAddress> broadcastIPs = new List<IPAddress>();
         Timer updateBroadcastListTimer, broadcastTimer;
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -60,7 +64,9 @@ namespace ChatApplication
             //Update clients list periodically
             updateBroadcastListTimer = new Timer(UpdateAvailableClients, null, 0, 20000);
 
-        }        
+            Network.FileTransfer.RunningTransfers = RunningTransfers;
+            Network.FileTransfer.mainWindow = this;
+        }  
     }
 }
 

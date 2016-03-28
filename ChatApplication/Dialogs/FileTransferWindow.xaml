@@ -1,0 +1,193 @@
+﻿<Window x:Class="ChatApplication.Dialogs.FileTransferWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChatApplication.Dialogs"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:Conv="clr-namespace:ChatApplication.Converters"
+        xmlns:ChatApp="clr-namespace:ChatApplication"
+        x:Name="FileShareWindow"
+        mc:Ignorable="d"
+        Title="File Transfers" Height="300" Width="450" Closed="FileShareWindowClosed"
+        MinHeight="280" MinWidth="420">
+    <Window.Resources>
+        <sys:Double x:Key="overallProgress"/>
+        <Conv:TransferStatusToImageURI x:Key="ConverterStatusImage"/>
+        <Conv:SubtractAConstant x:Key="ConverterSubtract"/>
+        <Conv:MultiplyAConstant x:Key="ConverterMultiplier" />
+        <Conv:SubtractAndThenMultiplyTwoConstants x:Key="ConverterSubtractAndMultiply" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" IsMainMenu="True" VerticalAlignment="Top" Padding="0,2" Height="30" Width="{Binding ActualWidth, ElementName=FileShareWindow}">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,2"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem HorizontalAlignment="Right" Header="Clear" Click="ClearFinishedTransfersClicked"/>
+            <MenuItem HorizontalAlignment="Right" Header="Pause All" Click="PauseItemClicked"/>
+            <MenuItem HorizontalAlignment="Right" Header="Resume All" Click="ResumeItemClicked"/>
+        </Menu>
+        <ListView Grid.Row="1" x:Name="transfersListView" Margin="0,-2,0,0">
+            <ListView.Resources>
+                <!-- Icons from https://www.iconfinder.com/iconsets/flavour -->
+                <ContextMenu x:Key="transferListContextMenuPausedCanBeResumed">
+                    <MenuItem Header="Resume" Click="ResumeItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Resume.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Stop" Click="StopItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Stop.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+                <ContextMenu x:Key="transferListContextMenuPausedCannotBeResumed">
+                    <MenuItem Header="Stop" Click="StopItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Remove.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+                <ContextMenu x:Key="transferListContextMenuRunning">
+                    <MenuItem Header="Pause" Click="PauseItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Pause.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Stop"  Click="StopItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Stop.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+                <ContextMenu x:Key="transferListContextMenuStopped">
+                    <MenuItem Header="Remove From List" Click="RemoveItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Remove.png" Width="20" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </ListView.Resources>
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding status}" Value="Running">
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuRunning}"/>
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Paused"/>
+                                <Condition Binding="{Binding pausedBy}" Value="None"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuRunning}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Paused"/>
+                                <Condition Binding="{Binding pausedBy}" Value="User"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuPausedCanBeResumed}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Paused"/>
+                                <Condition Binding="{Binding pausedBy}" Value="OtherPeer"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuRunning}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Paused"/>
+                                <Condition Binding="{Binding pausedBy}" Value="Both"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuPausedCanBeResumed}"/>
+                        </MultiDataTrigger>
+                        <DataTrigger Binding="{Binding status}" Value="Finished">
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuStopped}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding status}" Value="Cancelled">
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuStopped}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding status}" Value="Error">
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuStopped}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="45">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="      " Tag="status" Click="transfersListViewHeaderClicked"/>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Height="35" Width="35">
+                                    <Image.Source>
+                                        <MultiBinding Converter="{StaticResource ConverterStatusImage}">
+                                            <Binding Path="transferType"/>
+                                            <Binding Path="status"/>
+                                            <Binding Path="pausedBy"/>
+                                        </MultiBinding>
+                                    </Image.Source>
+                                </Image>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="{Binding ActualWidth, ElementName=transfersListView, Converter={StaticResource ConverterSubtractAndMultiply}, ConverterParameter=0.3-200}" DisplayMemberBinding="{Binding ID}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="ID" Tag="ID" Click="transfersListViewHeaderClicked"/>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="{Binding ActualWidth, ElementName=transfersListView, Converter={StaticResource ConverterSubtractAndMultiply}, ConverterParameter=0.5-200}" DisplayMemberBinding="{Binding fileName}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="FileName" Tag="FileName" Click="transfersListViewHeaderClicked"/>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="{Binding ActualWidth, ElementName=transfersListView, Converter={StaticResource ConverterSubtractAndMultiply}, ConverterParameter=0.2-200}" DisplayMemberBinding="{Binding size}">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="FileSize" Tag="FileSize" Click="transfersListViewHeaderClicked"/>
+                        </GridViewColumn.Header>
+                    </GridViewColumn>
+                    <GridViewColumn Width="155">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Progress" Tag="Progress" Click="transfersListViewHeaderClicked"/>
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="True" Width="155">
+                                    <Label Content="{Binding progress}" ContentStringFormat="{}{0}%" Width="55" DockPanel.Dock="Right"/>
+                                    <ProgressBar Value="{Binding progress}" Height="15"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StatusBar Grid.Row="2" HorizontalAlignment="Left" Height="25" Margin="0,0,0,0" Width="{Binding ActualWidth, ElementName=FileShareWindow}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding ActualWidth, ElementName=FileShareWindow, Converter={StaticResource ConverterSubtract}, ConverterParameter=265}"/>
+                    <ColumnDefinition Width="265"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Column="1" x:Name="OverallProgressStackPanel">
+                    <Grid Background="Black" Height="250" Width="1" VerticalAlignment="Center" Margin="5,0,5,0"/>
+                    <TextBlock Text="Overall Progress  "/>
+                    <ProgressBar IsEnabled="False" Width="100" Value="{DynamicResource overallProgress}"/>
+                    <Label Content="{DynamicResource overallProgress}" ContentStringFormat="{}{0}%" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
+                </StackPanel>
+            </Grid>
+        </StatusBar>
+    </Grid>
+</Window>

@@ -72,6 +72,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\FileTransferWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\EditPasswordWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -88,6 +92,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Comparers\FileTransferContainerCompareID.cs" />
+    <Compile Include="Comparers\FileTransferContainerCompareProgress.cs" />
+    <Compile Include="Comparers\FileTransferContainerCompareFileName.cs" />
+    <Compile Include="Comparers\FileTransferContainerCompareSize.cs" />
+    <Compile Include="Comparers\FileTransferContainerCompareStatus.cs" />
+    <Compile Include="Comparers\PeerContainerCompare.cs" />
+    <Compile Include="Converters\DataConverter.cs" />
     <Compile Include="Converters\JoinNickAndIP.cs" />
     <Compile Include="Converters\MessageboxWidthConverter.cs" />
     <Compile Include="Converters\MultiplyAConstant.cs" />
@@ -99,9 +110,20 @@
     <Compile Include="Converters\SubtractAndThenMultiplyTwoConstants.cs" />
     <Compile Include="Converters\SubtractTwoMultiBindings.cs" />
     <Compile Include="Converters\TabWidthConverter.cs" />
+    <Compile Include="Converters\TransferStatusToImageURI.cs" />
     <Compile Include="CustomCommands\CustomCommands.cs" />
-    <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
+    <Compile Include="DataContainers\FileTransferContainer.cs" />
     <Compile Include="DataContainers\PeerDataContainer.cs" />
+    <Compile Include="DataContainers\ConnectedPeerDataContainer.cs" />
+    <Compile Include="DataEnumerations\PausedBy.cs" />
+    <Compile Include="DataEnumerations\FileTransferCommands.cs" />
+    <Compile Include="DataEnumerations\FileTransferStatus.cs" />
+    <Compile Include="DataEnumerations\FileTransferType.cs" />
+    <Compile Include="DataEnumerations\ErrorCommands.cs" />
+    <Compile Include="DataEnumerations\PrimaryCommands.cs" />
+    <Compile Include="Dialogs\FileTransferWindow.xaml.cs">
+      <DependentUpon>FileTransferWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditPasswordWindow.xaml.cs">
       <DependentUpon>EditPasswordWindow.xaml</DependentUpon>
     </Compile>
@@ -130,6 +152,7 @@
     <Compile Include="Network\ConnectionManagers.cs" />
     <Compile Include="Network\DataReceivers.cs" />
     <Compile Include="Network\DataSenders.cs" />
+    <Compile Include="Network\FileTransfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -157,9 +180,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\menu.png" />
-    <Resource Include="Resources\normal_close_icon.png" />
-    <Resource Include="Resources\pressed_close_icon.png" />
+    <Resource Include="Resources\Images\Menu.png" />
+    <Resource Include="Resources\Images\NormalCloseIcon.png" />
+    <Resource Include="Resources\Images\PressedCloseIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
@@ -173,7 +196,40 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Images\DownloadRunning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\DownloadCancelled.png" />
+    <Resource Include="Resources\Images\DownloadError.png" />
+    <Resource Include="Resources\Images\DownloadFinished.png" />
+    <Resource Include="Resources\Images\DownloadPaused.png" />
+    <Resource Include="Resources\Images\UploadCancelled.png" />
+    <Resource Include="Resources\Images\UploadError.png" />
+    <Resource Include="Resources\Images\UploadFinished.png" />
+    <Resource Include="Resources\Images\UploadPaused.png" />
+    <Resource Include="Resources\Images\UploadRunning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\Pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\Resume.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\Remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\Stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\DownloadPausedByBoth.png" />
+    <Resource Include="Resources\Images\DownloadPausedByOtherPeer.png" />
+    <Resource Include="Resources\Images\DownloadPausedByUser.png" />
+    <Resource Include="Resources\Images\UploadPausedByBoth.png" />
+    <Resource Include="Resources\Images\UploadPausedByOtherPeer.png" />
+    <Resource Include="Resources\Images\UploadPausedByUser.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
