@@ -249,6 +249,7 @@ namespace ChatApplication.Dialogs
                     catch (System.ObjectDisposedException) {}
                     catch (System.Net.Sockets.SocketException) {}
                 }
+                System.Threading.Thread.Sleep(500);
                 Network.NetworkCommunicationManagers.Disconnect(_fileTransferContainerObject.FileTransferClassInstance.controlSocket);
                 Network.NetworkCommunicationManagers.Disconnect(_fileTransferContainerObject.FileTransferClassInstance.dataSocket);
             });            
