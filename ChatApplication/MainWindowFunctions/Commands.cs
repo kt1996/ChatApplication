@@ -43,7 +43,7 @@ namespace ChatApplication
         private void ShowFileTransferWindowCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             if (fileTransferWindow == null) {
-                fileTransferWindow = new Dialogs.FileTransferWindow(RunningTransfers);
+                fileTransferWindow = new Dialogs.FileTransferWindow();
                 lock (fileTransferWindow) {
                     fileTransferWindow.Closed += (sender2, args) => fileTransferWindow = null;
                     fileTransferWindow.Show();

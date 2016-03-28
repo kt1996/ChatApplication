@@ -129,7 +129,7 @@
                         <DropShadowEffect BlurRadius="2" ShadowDepth="2"/>
                     </MenuItem.Effect>
                     <MenuItem.Icon>
-                        <Image Width="20" Height="20" Source="Resources/menu.png" Margin="3,0,0,2"/>
+                        <Image Width="20" Height="20" Source="/Resources/Images/Menu.png" Margin="3,0,0,2"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </Menu>

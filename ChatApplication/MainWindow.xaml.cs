@@ -46,7 +46,7 @@ namespace ChatApplication
         private UdpClient broadcastReceiver;
         List<IPAddress> broadcastIPs = new List<IPAddress>();
         Timer updateBroadcastListTimer, broadcastTimer;
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -66,7 +66,7 @@ namespace ChatApplication
 
             Network.FileTransfer.RunningTransfers = RunningTransfers;
             Network.FileTransfer.mainWindow = this;
-        }        
+        }  
     }
 }
 

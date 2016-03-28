@@ -3,7 +3,7 @@
     [System.Flags]
     public enum FileTransferStatus : byte
     {
-        Runnning,
+        Running,
         Paused,
         Finished,
         Cancelled,

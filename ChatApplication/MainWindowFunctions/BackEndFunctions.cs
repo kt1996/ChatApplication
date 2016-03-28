@@ -434,12 +434,13 @@ namespace ChatApplication
                             int _port1;
                             Network.NetworkCommunicationManagers.ReceiveIntOverSocket(_peerSocket, out _port1);
                             FileTransferContainer fileTransferContainer = new FileTransferContainer() {
-                                status = FileTransferStatus.Runnning,
+                                status = FileTransferStatus.Running,
                                 fileName = "(fetching....)",
                                 ID = _nick + " (" + _ip + ")",
                                 progress = 0,
                                 size = "(fetching....)",
                                 transferType = FileTransferType.Download,
+                                pausedBy = PausedBy.None,
                             };
 
                             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
@@ -452,7 +453,9 @@ namespace ChatApplication
                                 if (!(new Network.FileTransfer(fileTransferContainer)).AcceptFileTransfer(_peerSocket, _port1, this)) {
                                     WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") failed");
                                     lock (fileTransferContainer) {
-                                        fileTransferContainer.status = FileTransferStatus.Error;
+                                        if(fileTransferContainer.status != FileTransferStatus.Cancelled) {
+                                            fileTransferContainer.status = FileTransferStatus.Error;
+                                        }
                                     }
                                 }
                                 else {

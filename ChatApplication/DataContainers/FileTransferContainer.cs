@@ -64,5 +64,14 @@
             get { return statusValue; }
             set { SetField(ref statusValue, value, "status"); }
         }
+
+        private PausedBy pausedByValue;
+        public PausedBy pausedBy
+        {
+            get { return pausedByValue; }
+            set { SetField(ref pausedByValue, value, "pausedBy"); }
+        }
+
+        public Network.FileTransfer FileTransferClassInstance;
     }
 }
