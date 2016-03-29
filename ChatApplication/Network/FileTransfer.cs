@@ -14,10 +14,9 @@ namespace ChatApplication.Network
         public Socket controlSocket, dataSocket;
         public DataContainers.FileTransferContainer fileTransferContainer;
         public static MainWindow mainWindow;
-
         public AutoResetEvent resetEvent;
-
         public static System.ComponentModel.BindingList<DataContainers.FileTransferContainer> RunningTransfers;
+        private const int FILE_BUFFER_SIZE = 8175;
 
         public FileTransfer(DataContainers.FileTransferContainer fileTransferContainer, string filePath = null, int intialPort = 0)
         {
@@ -38,9 +37,7 @@ namespace ChatApplication.Network
 
             this.fileTransferContainer = fileTransferContainer;
             fileTransferContainer.FileTransferClassInstance = this;
-        }
-
-        private const int FILE_BUFFER_SIZE = 8175;
+        }        
 
         static internal byte[] packFileMetadata(string filePath)
         {
@@ -294,7 +291,7 @@ namespace ChatApplication.Network
             _thread.Start();
 
             try {
-                using (FileStream _fs = new FileStream(filePath, FileMode.CreateNew)) {
+                using (FileStream _fs = new FileStream(filePath + ".temp", FileMode.CreateNew)) {
                     _fs.SetLength(length);
                     byte[] _buffer;
 
@@ -345,7 +342,10 @@ namespace ChatApplication.Network
             }
 
             if (_index < length) {
-                File.Delete(filePath);
+                try {
+                    File.Delete(filePath + ".temp");
+                }
+                catch { }                
                 lock (RunningTransfers) {
                     if (fileTransferContainer.status != FileTransferStatus.Cancelled) {
                         fileTransferContainer.status = FileTransferStatus.Error;
@@ -354,8 +354,19 @@ namespace ChatApplication.Network
                 return false;
             }
             else {
-                fileTransferContainer.status = FileTransferStatus.Finished;
-                fileTransferContainer.progress = 100;
+                try {
+                    File.Move(filePath + ".temp", filePath);
+                }
+                catch (IOException) {
+                    try {
+                        File.Delete(filePath + ".temp");
+                    }
+                    catch { }
+                }
+                lock (RunningTransfers) {
+                    fileTransferContainer.status = FileTransferStatus.Finished;
+                    fileTransferContainer.progress = 100;
+                }
             }
             return true;
         }
