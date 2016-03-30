@@ -373,10 +373,5 @@ namespace ChatApplication.Dialogs
                 Network.FileTransfer.RunningTransfers.Remove(_fileTransferContainerObject);
             }
         }
-
-        private void OpenFinishedItemDoubleClicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            OpenFileClicked(sender, e);
-        }
     }
 }
