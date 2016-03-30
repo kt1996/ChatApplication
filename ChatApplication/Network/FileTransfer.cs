@@ -67,6 +67,8 @@ namespace ChatApplication.Network
 
         internal void managedSendFileOverSockets(string filePath)
         {
+            fileTransferContainer.filePath = filePath;
+
             short _count = 0;
             const short _INITIAL = 5000;
 
@@ -512,7 +514,76 @@ namespace ChatApplication.Network
                     }
                 }
             }
+
+            fileTransferContainer.filePath = _filePath;
+
             return managedReceiveFileOverSockets(_filePath, _size);
+        }
+
+        public static bool IsFileExtensionDangerous(string ext)
+        {
+            System.Collections.Generic.List<string> _dangerousExtensions = new System.Collections.Generic.List<string>() {
+                ".exe",
+                ".pif",
+                ".application",
+                ".gadget",
+                ".msi",
+                ".msp",
+                ".com",
+                ".scr",
+                ".hta",
+                ".cpl",
+                ".msc",
+                ".jar",
+                ".bat",
+                ".cmd",
+                ".vb",
+                ".vbs",
+                ".vbe",
+                ".js",
+                ".jse",
+                ".ws",
+                ".wsf",
+                ".wsc",
+                ".wsh",
+                ".ps1",
+                ".ps1xml",
+                ".ps2",
+                ".ps2xml",
+                ".psc1",
+                ".psc2",
+                ".msh",
+                ".msh1",
+                ".msh2",
+                ".mshxml",
+                ".msh1xml",
+                ".msh2xml",
+                ".scf",
+                ".lnk",
+                ".inf",
+                ".reg",
+                ".docm",
+                ".dotm",
+                ".xlsm",
+                ".xltm",
+                ".xlam",
+                ".pptm",
+                ".potm",
+                ".ppam",
+                ".ppsm",
+                ".sldm",
+            };
+
+            if(ext == "") {
+                return false;
+            }
+
+            if (_dangerousExtensions.Contains(ext.ToLower())) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
 }

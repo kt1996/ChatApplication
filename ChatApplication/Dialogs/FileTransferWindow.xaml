@@ -40,38 +40,55 @@
                 <ContextMenu x:Key="transferListContextMenuPausedCanBeResumed">
                     <MenuItem Header="Resume" Click="ResumeItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Resume.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Resume.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Stop" Click="StopItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Stop.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Stop.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu x:Key="transferListContextMenuPausedCannotBeResumed">
                     <MenuItem Header="Stop" Click="StopItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Remove.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Remove.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu x:Key="transferListContextMenuRunning">
                     <MenuItem Header="Pause" Click="PauseItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Pause.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Pause.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Stop"  Click="StopItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Stop.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Stop.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu x:Key="transferListContextMenuStopped">
                     <MenuItem Header="Remove From List" Click="RemoveItemClicked">
                         <MenuItem.Icon>
-                            <Image Source="/Resources/Images/Remove.png" Width="20" Height="20"/>
+                            <Image Source="/Resources/Images/Remove.png" Width="18" Height="18"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+                <ContextMenu x:Key="transferListContextMenuFinished">
+                    <MenuItem Header="Open" Click="OpenFileClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/OpenFile.png" Width="18" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Delete" Click="DeleteFileClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/DeleteFile.png" Width="18" Height="20"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Remove From List" Click="RemoveItemClicked">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/Remove.png" Width="18" Height="18"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
@@ -79,6 +96,7 @@
 
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
+                    <EventSetter Event="MouseDoubleClick" Handler="OpenFinishedItemDoubleClicked" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding status}" Value="Running">
                             <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuRunning}"/>
@@ -111,9 +129,20 @@
                             </MultiDataTrigger.Conditions>
                             <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuPausedCanBeResumed}"/>
                         </MultiDataTrigger>
-                        <DataTrigger Binding="{Binding status}" Value="Finished">
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Finished"/>
+                                <Condition Binding="{Binding transferType}" Value="Download"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuFinished}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding status}" Value="Finished"/>
+                                <Condition Binding="{Binding transferType}" Value="Upload"/>
+                            </MultiDataTrigger.Conditions>
                             <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuStopped}"/>
-                        </DataTrigger>
+                        </MultiDataTrigger>
                         <DataTrigger Binding="{Binding status}" Value="Cancelled">
                             <Setter Property="ContextMenu" Value="{StaticResource transferListContextMenuStopped}"/>
                         </DataTrigger>

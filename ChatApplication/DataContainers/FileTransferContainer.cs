@@ -34,6 +34,13 @@
             set { SetField(ref fileNameValue, value, "fileName"); }
         }
 
+        private string filePathValue;
+        public string filePath
+        {
+            get { return filePathValue; }
+            set { SetField(ref filePathValue, value, "filePath"); }
+        }
+
         private string sizeValue;
         public string size {
             get { return sizeValue; }

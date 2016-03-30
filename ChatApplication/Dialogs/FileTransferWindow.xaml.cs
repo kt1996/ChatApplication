@@ -328,5 +328,55 @@ namespace ChatApplication.Dialogs
             listViewSortAdorner = new Graphics.Adorners.SortAdorner(listViewSortCol, newDir);
             System.Windows.Documents.AdornerLayer.GetAdornerLayer(listViewSortCol).Add(listViewSortAdorner);
         }
+
+        private void OpenFileClicked(object sender, RoutedEventArgs e)
+        {
+            DataContainers.FileTransferContainer _fileTransferContainerObject = (DataContainers.FileTransferContainer)transfersListView.SelectedItem;
+
+            if (_fileTransferContainerObject.status != FileTransferStatus.Finished || _fileTransferContainerObject.transferType != FileTransferType.Download) {
+                return;
+            }
+
+            if (!System.IO.File.Exists(_fileTransferContainerObject.filePath)) {
+                MessageBox.Show("File has been deleted or moved");
+                return;
+            }
+
+            if (Network.FileTransfer.IsFileExtensionDangerous(System.IO.Path.GetExtension(_fileTransferContainerObject.fileName))) {
+                if (MessageBox.Show("This File Maybe Dangerous, Proceed to open file ?", "Open Possible Malicious File", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel) {
+                    return;
+                }
+            }
+
+            System.Diagnostics.Process.Start(_fileTransferContainerObject.filePath);
+        }
+
+        private void DeleteFileClicked(object sender, RoutedEventArgs e)
+        {
+            DataContainers.FileTransferContainer _fileTransferContainerObject = (DataContainers.FileTransferContainer)transfersListView.SelectedItem;
+
+            if (_fileTransferContainerObject.status != FileTransferStatus.Finished || _fileTransferContainerObject.transferType != FileTransferType.Download) {
+                return;
+            }
+
+            if (!System.IO.File.Exists(_fileTransferContainerObject.filePath)) {
+                MessageBox.Show("File has been already deleted or moved");
+                return;
+            }
+
+            try {
+                System.IO.File.Delete(_fileTransferContainerObject.filePath);
+            }
+            catch { }
+
+            lock (Network.FileTransfer.RunningTransfers) {
+                Network.FileTransfer.RunningTransfers.Remove(_fileTransferContainerObject);
+            }
+        }
+
+        private void OpenFinishedItemDoubleClicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            OpenFileClicked(sender, e);
+        }
     }
 }
