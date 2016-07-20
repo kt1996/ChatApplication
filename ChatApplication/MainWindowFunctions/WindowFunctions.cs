@@ -352,7 +352,7 @@ namespace ChatApplication
                     transferType = FileTransferType.Upload,
                     pausedBy = PausedBy.None,
                 };
-                using (System.IO.FileStream _fs = new System.IO.FileStream(_filePath, System.IO.FileMode.Open)) {
+                using (System.IO.FileStream _fs = new System.IO.FileStream(_filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite)) {
                     fileTransferContainer.sizeInBytes = _fs.Length;
                     fileTransferContainer.size = Converters.DataConverter.bytesToReadableString(fileTransferContainer.sizeInBytes);
                 }
@@ -576,6 +576,11 @@ namespace ChatApplication
             _item.Content = _container;
             ((ListBox)((Grid)_tab.Content).Children[0]).Items.Add(_item);
             ((ListBox)((Grid)_tab.Content).Children[0]).ScrollIntoView(((ListBox)((Grid)_tab.Content).Children[0]).Items[(((ListBox)((Grid)_tab.Content).Children[0]).Items.Count - 1)]);
+        }
+
+        private void MainWindowClosed(object sender, EventArgs e)
+        {
+            ExitCommandExecuted(sender, e as ExecutedRoutedEventArgs);
         }
     }
 }

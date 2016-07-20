@@ -13,6 +13,10 @@ namespace ChatApplication
                 Network.NetworkCommunicationManagers.Disconnect(client.socket);
             }
             StopServer();
+            if (fileTransferWindow != null)
+            {
+                fileTransferWindow.Close();
+            }
             isBroadcasting = false;
             System.Windows.Application.Current.Shutdown();
         }

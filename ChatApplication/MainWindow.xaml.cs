@@ -46,7 +46,7 @@ namespace ChatApplication
         private UdpClient broadcastReceiver;
         List<IPAddress> broadcastIPs = new List<IPAddress>();
         Timer updateBroadcastListTimer, broadcastTimer;
-
+        
         public MainWindow()
         {
             InitializeComponent();

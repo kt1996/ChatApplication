@@ -43,7 +43,7 @@ namespace ChatApplication.Network
         {
             string fileName = Path.GetFileName(filePath);
             long length;
-            using (FileStream _fs = new FileStream(filePath, FileMode.Open)) {
+            using (FileStream _fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
                 length = _fs.Length;
             }                
             byte[] arr1 = System.Text.Encoding.UTF8.GetBytes(fileName);

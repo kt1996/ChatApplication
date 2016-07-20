@@ -7,7 +7,7 @@
         xmlns:Conv="clr-namespace:ChatApplication.Converters" xmlns:commands="clr-namespace:ChatApplication.CustomCommands"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Name="PrimaryWindow" x:Class="ChatApplication.MainWindow"
         mc:Ignorable="d"
-        Title="ChatApp" Height="600" Width="700" MinWidth="550" MinHeight="450" ContentRendered="SortBroadcastingPeers">
+        Title="ChatApp" Height="600" Width="700" MinWidth="550" MinHeight="450" ContentRendered="SortBroadcastingPeers" Closed="MainWindowClosed">
     <Window.Resources>
         <Conv:SubtractAConstant x:Key="ConverterSubtract" />
         <Conv:SubtractAConstantFromLeftMargin x:Key="ConverterSubtractFromLeftMargin" />
