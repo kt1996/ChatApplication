@@ -16,6 +16,7 @@ namespace ChatApplication
 
     public partial class MainWindow : Window
     {
+        public static string version = "X.X.X.X";
 
         /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
         //Window variables
@@ -50,7 +51,7 @@ namespace ChatApplication
         public MainWindow()
         {
             InitializeComponent();
-
+            
             //Get and encode Machine Name
             byte[] _hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(Environment.MachineName));
             encodedMachineName = BitConverter.ToString(_hash).Replace("-", string.Empty).ToLower();

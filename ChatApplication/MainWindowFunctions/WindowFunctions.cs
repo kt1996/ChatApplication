@@ -281,9 +281,9 @@ namespace ChatApplication
         {
             Button _btn = ((Button)sender);
             string _buttonTag = (string)_btn.Tag;
-            TextBox _txtbox = ((Grid)((Button)sender).Parent).Children.OfType<TextBox>().First<TextBox>();
-            string _message = _txtbox.Text;
-            ((Grid)_btn.Parent).Children.OfType<TextBox>().First<TextBox>().Text = "";
+            TextBox _txtbox = ((Grid)((Button)sender).Parent).Children.OfType<TextBox>().First();
+            string _message = _txtbox.Text.Trim();
+            ((Grid)_btn.Parent).Children.OfType<TextBox>().First().Text = "";
             _txtbox.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(delegate () { _txtbox.Focus(); }));
             string _ip = _buttonTag.Remove(0, _buttonTag.IndexOf(':') + 1);
             string _nick = _buttonTag.Remove(_buttonTag.IndexOf(':'));

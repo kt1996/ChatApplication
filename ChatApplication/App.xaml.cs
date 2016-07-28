@@ -25,14 +25,10 @@ namespace ChatApplication
         {
             //Show the exception error
             Exception e = (Exception)ex.ExceptionObject;
-            string message = "     **Unhandled Exception**\nMessage: " + e.Message + "\nStackTrace: " + e.StackTrace;
 
-            while (e.InnerException != null)
-            {
-                e = e.InnerException;
-                message += "\n\nInner Exception-\nMessage: " + e.Message + "\nStackTrace: " + e.StackTrace;
-            }
-            MessageBox.Show(message);
+            Dialogs.UnhandledExceptionDialog _dg = new Dialogs.UnhandledExceptionDialog(e);
+            _dg.Owner = Current.MainWindow;
+            _dg.ShowDialog();
 
             //Exit the app
             Environment.Exit(1);

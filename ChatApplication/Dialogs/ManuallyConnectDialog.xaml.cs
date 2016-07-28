@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace ChatApplication
 {
     /// <summary>
-    /// Interaction logic for ManuallyConnectDialog.xaml
+    /// A window to manually enter connection details for a peer.
     /// </summary>
     public partial class ManuallyConnectDialog : Window
     {

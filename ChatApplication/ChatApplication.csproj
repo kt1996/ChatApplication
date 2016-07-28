@@ -52,6 +52,14 @@
     <StartupObject>ChatApplication.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -81,6 +89,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\InputNickWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\UnhandledExceptionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -130,6 +142,9 @@
     <Compile Include="Dialogs\InputNickWindow.xaml.cs">
       <DependentUpon>InputNickWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\UnhandledExceptionDialog.xaml.cs">
+      <DependentUpon>UnhandledExceptionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Encryption\Encryption.cs" />
     <Compile Include="Graphics\Adorners\SortAdorner.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -170,6 +185,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -233,6 +249,15 @@
   <ItemGroup>
     <Resource Include="Resources\Images\DeleteFile.png" />
     <Resource Include="Resources\Images\OpenFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\AlertIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\SolidAlertIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Assemblies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
