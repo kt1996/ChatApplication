@@ -12,7 +12,7 @@ using System.Windows.Threading;
 
 namespace ChatApplication
 {
-    public partial class MainWindow: System.Windows.Window
+    public partial class MainWindow: Window
     {
         private bool AddPeer(PeerDataContainer client)
         {
@@ -528,6 +528,7 @@ namespace ChatApplication
 
         private void WriteToLogbox(string text)
         {
+            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { (Log.Tag as System.Text.StringBuilder).Append("--> " + RemovePersonalData(text) + "\r\n"); }));            
             text = "** " + text;
             string _subtext;
             int _index;

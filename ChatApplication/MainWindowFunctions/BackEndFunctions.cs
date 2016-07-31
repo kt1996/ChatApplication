@@ -9,7 +9,7 @@ using System.Windows.Threading;
 
 namespace ChatApplication
 {
-    public partial class MainWindow : System.Windows.Window
+    public partial class MainWindow : Window
     {
         private void ConnectToPeerByIP(string address, string password = null)
         {
@@ -55,7 +55,7 @@ namespace ChatApplication
                 }
                 else {
                     MessageBox.Show("Failed To establish connection to \"" + address + "\"");
-                    WriteToLogbox(string.Format("Failed To establish connection to client: {0}", address));
+                    WriteToLogbox(string.Format("Failed to establish connection to client: {0}", address));
                 }
                 return;
             }
@@ -514,6 +514,23 @@ namespace ChatApplication
             }
         }
 
+        private string RemovePersonalData(string message)
+        {
+            if(message.StartsWith("Message Received-"))
+            {
+                return message.Substring(0, message.IndexOf(':')) + ")";
+            }
+            else if(message.StartsWith("Message Sent-"))
+            {
+                return message.Substring(0, message.IndexOf(':')) + ")";
+            }
+            else
+            {
+                return message;
+            }
+            
+        }
+
         private void SendMessage(string msg, ConnectedPeerDataContainer client)
         {
             Socket _peerSocket = client.socket;
@@ -534,7 +551,7 @@ namespace ChatApplication
                 return;
             }
 
-            WriteToLogbox("Message Sent to " + client.nick + " (" + _peerSocket.RemoteEndPoint.ToString() + "): " + msg);
+            WriteToLogbox("Message Sent- " + client.nick + " (" + _peerSocket.RemoteEndPoint.ToString() + "): " + msg);
 
         }
 

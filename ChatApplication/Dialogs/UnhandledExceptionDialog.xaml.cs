@@ -23,26 +23,27 @@ namespace ChatApplication.Dialogs
                     _hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
             }
-            _sb.Append("Application Details-\n=============\n\n-> Version: " + MainWindow.version + "\n-> File MD5 Hash: " + _hash + "\n\nException Message(s)-\n==============\n\n");
+            _sb.Append("Application Details-\r\n=============\r\n\r\n-> Version: " + MainWindow.version + "\r\n-> File MD5 Hash: " + _hash + "\r\n\r\nException Message(s)-\r\n==============\r\n\r\n");
             _sb.Append("-> " + e.Message);
             while (e.InnerException != null)
             {
                 e = e.InnerException;
-                _sb.Append("\n-> " + e.Message);
+                _sb.Append("\r\n-> " + e.Message);
             }
             e = exception;
             OverviewTabTextBox.Text = _sb.ToString();
             _sb.Clear();
             
-            _sb.Append("Outermost Exception-\n==============================\n\n-> Message:\n" + e.Message + "\n-> StackTrace:\n" + e.StackTrace);
+            _sb.Append("Outermost Exception-\r\n==============================\r\n\r\n-> Message:\r\n" + e.Message + "\r\n-> StackTrace:\r\n" + e.StackTrace);
             int _counter = 1;
             while (e.InnerException != null)
             {
                 e = e.InnerException;
-                _sb.Append("\n\n\n" + _counter.ToString() + suffix(_counter) + " Inner Exception\n==============================\n\n-> Message:\n" + e.Message + "\n-> StackTrace:\n" + e.StackTrace);
+                _sb.Append("\r\n\r\n\r\n" + _counter.ToString() + suffix(_counter) + " Inner Exception\r\n==============================\r\n\r\n-> Message:\r\n" + e.Message + "\r\n-> StackTrace:\r\n" + e.StackTrace);
                 _counter++;
             }
             DetailsTabTextBox.Text = _sb.ToString();
+            LogTabTextBox.Text = ((Application.Current.MainWindow.FindName("Log") as System.Windows.Controls.ListBox).Tag as System.Text.StringBuilder).ToString();
         }
 
         private void ExitButtonClicked(object sender, RoutedEventArgs e)
@@ -73,18 +74,9 @@ namespace ChatApplication.Dialogs
                     }
                 }
 
-                string _data = "Please send this log with a brief description of what caused this error/ what you were doing to kaustubht96<at>gmail<dot>com\r\n\r\n" + "Application Details-\r\n============================\r\n\r\n-> Version: " + MainWindow.version + "\r\n-> File MD5 Hash: " + _hash + "\r\n\r\n";
+                string _data = "Please send this log with a brief description of what caused this error/ what you were doing to kaustubht96<at>gmail<dot>com\r\n\r\n" + "Application Details-\r\n============================\r\n\r\n-> Version: " + MainWindow.version + "\r\n-> File MD5 Hash: " + _hash + "\r\n\r\n" + DetailsTabTextBox.Text + "\r\n\r\n" + "Application Log-\r\n============================\r\n\r\n" + LogTabTextBox.Text;
 
                 Exception ex = exception;
-
-                _data += "Outermost Exception-\r\n==============================\r\n\r\n-> Message:\r\n" + ex.Message + "\r\n-> StackTrace:\n" + ex.StackTrace;
-                int _counter = 1;
-                while (ex.InnerException != null)
-                {
-                    ex = ex.InnerException;
-                    _data += "\r\n\r\n\r\n" + _counter.ToString() + suffix(_counter) + " Inner Exception\r\n==============================\r\n\r\n-> Message:\r\n" + ex.Message + "\r\n-> StackTrace:\r\n" + ex.StackTrace;
-                    _counter++;
-                }
 
                 while (_tries < 5 & !_logSuccessfullyWritten)
                 {

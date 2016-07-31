@@ -51,7 +51,9 @@ namespace ChatApplication
         public MainWindow()
         {
             InitializeComponent();
-            
+
+            Log.Tag = new StringBuilder();
+
             //Get and encode Machine Name
             byte[] _hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(new UTF8Encoding().GetBytes(Environment.MachineName));
             encodedMachineName = BitConverter.ToString(_hash).Replace("-", string.Empty).ToLower();

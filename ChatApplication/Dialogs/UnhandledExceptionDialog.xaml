@@ -55,6 +55,12 @@
                         </TabItem.Header>
                         <TextBox IsReadOnly="True" Name="DetailsTabTextBox" VerticalScrollBarVisibility="Auto"/>
                     </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <TextBlock FontWeight="DemiBold" Text="Log"/>
+                        </TabItem.Header>
+                        <TextBox IsReadOnly="True" Name="LogTabTextBox" VerticalScrollBarVisibility="Auto"/>
+                    </TabItem>
                 </TabControl>
             </StackPanel>
             <StackPanel Grid.Row="1" VerticalAlignment="Center">
