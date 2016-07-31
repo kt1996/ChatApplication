@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace ChatApplication
+namespace ChatApplication.Dialogs
 {
     /// <summary>
     /// Interaction logic for InputNickWindow.xaml

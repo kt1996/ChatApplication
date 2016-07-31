@@ -23,7 +23,7 @@ namespace ChatApplication
 
         private void ManuallyConnectCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            ManuallyConnectDialog _dialog = new ManuallyConnectDialog();
+            Dialogs.ManuallyConnectDialog _dialog = new Dialogs.ManuallyConnectDialog();
             _dialog.ShowInTaskbar = false;
             _dialog.Owner = this;
             if (_dialog.ShowDialog() == false) {

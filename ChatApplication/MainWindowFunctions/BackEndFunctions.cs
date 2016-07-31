@@ -313,9 +313,9 @@ namespace ChatApplication
                                 }
                                 catch (Exception) { }
                                 Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                                    ManuallyConnectDialog _dialog;
+                                    Dialogs.ManuallyConnectDialog _dialog;
                                     while (true) {
-                                        _dialog = new ManuallyConnectDialog(_ip, _nick, "Password Required");
+                                        _dialog = new Dialogs.ManuallyConnectDialog(_ip, _nick, "Password Required");
                                         _dialog.ShowInTaskbar = false;
                                         _dialog.Owner = this;
                                         if (_dialog.ShowDialog() == false) {
@@ -351,9 +351,9 @@ namespace ChatApplication
                                 }
                                 catch (Exception) { }
                                 Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => {
-                                    ManuallyConnectDialog _dialog;
+                                    Dialogs.ManuallyConnectDialog _dialog;
                                     while (true) {
-                                        _dialog = new ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
+                                        _dialog = new Dialogs.ManuallyConnectDialog(_ip, _nick, "Incorrect Password");
                                         _dialog.ShowInTaskbar = false;
                                         _dialog.Owner = this;
                                         if (_dialog.ShowDialog() == false) {

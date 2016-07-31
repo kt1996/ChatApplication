@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace ChatApplication
+namespace ChatApplication.Dialogs
 {
     public partial class EditPasswordWindow : Window
     {            

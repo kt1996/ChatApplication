@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace ChatApplication
+namespace ChatApplication.Dialogs
 {
     /// <summary>
     /// A window to manually enter connection details for a peer.

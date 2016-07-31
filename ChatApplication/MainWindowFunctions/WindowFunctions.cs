@@ -196,7 +196,7 @@ namespace ChatApplication
 
         private void EditPasswordClicked(object sender, RoutedEventArgs e)
         {
-            EditPasswordWindow _passwordWindow = new EditPasswordWindow(password != null);
+            Dialogs.EditPasswordWindow _passwordWindow = new Dialogs.EditPasswordWindow(password != null);
             _passwordWindow.ShowInTaskbar = false;
             _passwordWindow.Owner = this;
             if ((bool)_passwordWindow.ShowDialog()) {
@@ -387,7 +387,7 @@ namespace ChatApplication
             //Incase it is being called by window for first time initialization then get the nick too
             if (sender.GetType() == PrimaryWindow.GetType()) {
                 while (nick == "" || nick == "Enter Nick" || (nick.IndexOf(':') != -1) || (nick.IndexOf('<') != -1) || (nick.IndexOf('>') != -1) || nick.Length > 30) {
-                    InputNickWindow _dialog = new InputNickWindow();
+                    Dialogs.InputNickWindow _dialog = new Dialogs.InputNickWindow();
                     _dialog.ShowInTaskbar = false;
                     _dialog.Owner = this;
                     if (_dialog.ShowDialog() == true) {
