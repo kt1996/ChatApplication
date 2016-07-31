@@ -187,10 +187,11 @@ namespace ChatApplication
         {
             string _tag = (string)((MenuItem)sender).Tag;
             string _ip = _tag.Remove(0, _tag.IndexOf(':') + 1);
-            Thread _thread = new Thread(() => ConnectToPeerByIP(_ip));
-            _thread.Name = _ip + " handler";
-            _thread.IsBackground = true;
-            _thread.Start();
+            new Thread(() => ConnectToPeerByIP(_ip))
+            {
+                Name = _ip + " handler",
+                IsBackground = true
+            }.Start();
         }
 
         private void EditPasswordClicked(object sender, RoutedEventArgs e)

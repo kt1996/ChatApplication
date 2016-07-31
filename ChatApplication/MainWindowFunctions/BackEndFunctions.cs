@@ -435,10 +435,10 @@ namespace ChatApplication
                             Network.NetworkCommunicationManagers.ReceiveIntOverSocket(_peerSocket, out _port1);
                             FileTransferContainer fileTransferContainer = new FileTransferContainer() {
                                 status = FileTransferStatus.Running,
-                                fileName = "(fetching....)",
+                                fileName = "(Fetching....)",
                                 ID = _nick + " (" + _ip + ")",
                                 progress = 0,
-                                size = "(fetching....)",
+                                size = "(Fetching....)",
                                 transferType = FileTransferType.Download,
                                 pausedBy = PausedBy.None,
                             };
@@ -451,7 +451,7 @@ namespace ChatApplication
 
                             Thread _thread = new Thread(() => {
                                 if (!(new Network.FileTransfer(fileTransferContainer)).AcceptFileTransfer(_peerSocket, _port1, this)) {
-                                    WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") failed");
+                                    WriteToLogbox("File Transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") failed");
                                     lock (fileTransferContainer) {
                                         if(fileTransferContainer.status != FileTransferStatus.Cancelled) {
                                             fileTransferContainer.status = FileTransferStatus.Error;
@@ -459,7 +459,7 @@ namespace ChatApplication
                                     }
                                 }
                                 else {
-                                    WriteToLogbox("File transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") done");
+                                    WriteToLogbox("File Transfer from " + _nick + " (" + _clientSocketRemoteEndPointString + ") done");
                                     lock (fileTransferContainer) {
                                         fileTransferContainer.status = FileTransferStatus.Finished;
                                     }
@@ -471,10 +471,23 @@ namespace ChatApplication
                             break;
 
                         default:
-                            _message = "Invalid MessageCode Received, The other client is most probably running a newer version of the application with a new Feature.. !!";
+                            _message = "Invalid MessageCode Received. The other client is most probably running a newer version of the application with a new Feature.. !!";
                             Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, _message, _nick, 0); }));
                             WriteToLogbox("Unsupported MessageCode from- " + _nick + " (" + _clientSocketRemoteEndPointString + ") received");
-                            break;
+                            Network.NetworkCommunicationManagers.Disconnect(_peerSocket);
+                            new Thread(() => ConnectToPeerByIP(_ip)) {
+                                Name = _ip + " handler", IsBackground = true
+                            }.Start();
+                            try
+                            {
+                                connectedPeersList.Remove(client);
+                            }
+                            catch (Exception) { }
+                            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Attempting to reconnect", _nick, 0); }));
+                            WriteToLogbox("Attempting to reconnect- " + _ip);
+                            Dispatcher.Invoke(DispatcherPriority.Normal, (Action)(() => { WriteToTab(_ip, "Disconnected", _nick, 0); }));
+                            WriteToLogbox("Disconnected- " + _ip);
+                            return;
                     }
                 }
                 connectedPeersList.Remove(client);
